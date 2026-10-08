@@ -1,0 +1,14 @@
+{
+  "name": "careapp",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "web": "npm run start --workspace=web",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:db:push": "supabase db push",
+    "supabase:test": "cd supabase && deno test --node-modules-dir=none --allow-env --allow-net --allow-read --allow-write functions/_shared"
+  }
+}

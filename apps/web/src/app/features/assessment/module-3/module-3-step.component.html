@@ -1,0 +1,16 @@
+<section class="mx-auto max-w-3xl">
+  <app-wizard-progress [currentStep]="3" title="Verhaltensweisen und psychische Problemlagen" />
+
+  <div class="card space-y-4">
+    <app-level-question-group
+      [questions]="questions"
+      [scaleLabels]="scaleLabels"
+      [form]="form"
+      [explanations]="explanations"
+    />
+
+    <div class="flex justify-end pt-2">
+      <button type="button" class="btn-primary" [disabled]="saving()" (click)="submit()">Weiter zu Modul 4</button>
+    </div>
+  </div>
+</section>

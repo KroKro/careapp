@@ -1,0 +1,16 @@
+<section class="mx-auto max-w-3xl">
+  <app-wizard-progress [currentStep]="6" title="Gestaltung des Alltagslebens und sozialer Kontakte" />
+
+  <div class="card space-y-4">
+    <app-level-question-group
+      [questions]="questions"
+      [scaleLabels]="scaleLabels"
+      [form]="form"
+      [explanations]="explanations"
+    />
+
+    <div class="flex justify-end pt-2">
+      <button type="button" class="btn-primary" [disabled]="saving()" (click)="submit()">Weiter zur Zusammenfassung</button>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,68 @@
+<section class="mx-auto max-w-3xl">
+  <a routerLink="/admin" class="link text-sm">← Admin-Übersicht</a>
+  <h1 class="mt-2 text-2xl font-semibold text-gray-800 dark:text-white">Scoring-Rulesets</h1>
+  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+    Nur ein Ruleset kann gleichzeitig aktiv sein. Neue Berechnungen verwenden immer das aktive
+    Ruleset; bereits abgeschlossene Assessments bleiben unverändert, da sie das verwendete
+    Ruleset referenzieren.
+  </p>
+
+  @if (errorMessage()) {
+    <p class="alert-error mt-4">{{ errorMessage() }}</p>
+  }
+
+  <div class="card mt-6">
+    @if (loading()) {
+      <p class="text-sm text-gray-500 dark:text-gray-400">Lade…</p>
+    } @else {
+      <ul class="divide-y divide-gray-100 dark:divide-gray-800">
+        @for (r of rulesets(); track r.id) {
+          <li class="flex flex-wrap items-center justify-between gap-3 py-3">
+            <div>
+              <p class="text-sm font-medium text-gray-800 dark:text-white">{{ r.version_label }}</p>
+              <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">gültig ab {{ r.valid_from }}</p>
+            </div>
+            @if (r.is_active) {
+              <span class="badge-success">aktiv</span>
+            } @else {
+              <button type="button" class="btn-secondary px-3! py-1.5! text-xs" (click)="activate(r.id)">Aktivieren</button>
+            }
+          </li>
+        }
+      </ul>
+    }
+  </div>
+
+  <div class="mt-6">
+    @if (!showCreateForm()) {
+      <button type="button" class="btn-secondary" (click)="showCreateForm.set(true); prefillFromActive()">
+        Neues Ruleset anlegen
+      </button>
+    } @else {
+      <div class="card">
+        <form [formGroup]="form" (ngSubmit)="create()" class="space-y-4">
+          <div>
+            <label class="label">Bezeichnung</label>
+            <input type="text" class="input" formControlName="versionLabel" placeholder="z. B. BRi-2027" />
+          </div>
+          <div>
+            <label class="label">Gültig ab</label>
+            <input type="date" class="input" formControlName="validFrom" />
+          </div>
+          <div>
+            <label class="label">Stufentabellen (JSON)</label>
+            <textarea class="input font-mono text-xs" formControlName="stepTablesJson" rows="10"></textarea>
+          </div>
+          <div>
+            <label class="label">Pflegegrad-Schwellen (JSON)</label>
+            <textarea class="input font-mono text-xs" formControlName="pflegegradThresholdsJson" rows="6"></textarea>
+          </div>
+          <div class="flex gap-3">
+            <button type="submit" class="btn-primary" [disabled]="saving()">Anlegen (inaktiv)</button>
+            <button type="button" class="btn-secondary" (click)="showCreateForm.set(false)">Abbrechen</button>
+          </div>
+        </form>
+      </div>
+    }
+  </div>
+</section>

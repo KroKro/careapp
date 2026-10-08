@@ -1,0 +1,177 @@
+<section class="mx-auto max-w-3xl">
+  <app-wizard-progress [currentStep]="4" title="Selbstversorgung" />
+
+  <div class="card space-y-4">
+    <app-level-question-group
+      [questions]="baseQuestions"
+      [scaleLabels]="scaleLabels"
+      [form]="baseForm"
+      [explanations]="explanations"
+    />
+    <app-level-question-group
+      [questions]="weightedQuestions"
+      [scaleLabels]="scaleLabels"
+      [form]="weightedForm"
+      [explanations]="explanations"
+    />
+
+    <div [formGroup]="incontinenceForm" class="rounded-xl border border-gray-200 p-4 dark:border-gray-800">
+      <p class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+        Bewältigen der Folgen einer Harninkontinenz / Umgang mit Dauerkatheter oder Urostoma
+      </p>
+      <label class="flex items-center gap-2.5 text-sm text-gray-600 dark:text-gray-300">
+        <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500" formControlName="harnApplies" />
+        Trifft zu (überwiegend/komplett inkontinent oder künstliche Ableitung)
+      </label>
+      @if (incontinenceValues().harnApplies) {
+        <div class="mt-3 space-y-2">
+          @for (level of [0, 1, 2, 3]; track level) {
+            <div
+              class="rounded-lg border transition"
+              [class]="
+                incontinenceValues().harnLevel === level
+                  ? 'border-brand-500 bg-brand-50 dark:border-brand-500 dark:bg-brand-500/10'
+                  : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
+              "
+            >
+              <div class="flex items-center gap-2 px-3.5 py-2.5">
+                <label
+                  class="flex flex-1 cursor-pointer items-center gap-2.5 text-sm"
+                  [class]="incontinenceValues().harnLevel === level ? 'text-brand-700 dark:text-brand-400' : 'text-gray-600 dark:text-gray-300'"
+                >
+                  <input type="radio" class="sr-only" formControlName="harnLevel" name="harnLevel" [value]="level" />
+                  {{ scaleLabels[level] }}
+                </label>
+                @if (explanations['4.4.11'].levels?.[level]) {
+                  <button
+                    type="button"
+                    class="inline-flex shrink-0 items-center rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-brand-500 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-brand-400"
+                    [attr.aria-expanded]="isExplanationOpen('4.4.11', level)"
+                    [attr.aria-label]="'Erläuterung zu ' + scaleLabels[level]"
+                    (click)="toggleLevelExplanation('4.4.11', level)"
+                  >
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                    </svg>
+                  </button>
+                }
+              </div>
+              @if (isExplanationOpen('4.4.11', level)) {
+                <p class="border-t border-gray-200/70 px-3.5 py-2.5 text-xs leading-relaxed whitespace-pre-line text-gray-600 dark:border-gray-700/70 dark:text-gray-400">
+                  {{ explanations['4.4.11'].levels![level] }}
+                </p>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div [formGroup]="incontinenceForm" class="rounded-xl border border-gray-200 p-4 dark:border-gray-800">
+      <p class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+        Bewältigen der Folgen einer Stuhlinkontinenz / Umgang mit Stoma
+      </p>
+      <label class="flex items-center gap-2.5 text-sm text-gray-600 dark:text-gray-300">
+        <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500" formControlName="stuhlApplies" />
+        Trifft zu (überwiegend/komplett inkontinent oder künstliche Ableitung)
+      </label>
+      @if (incontinenceValues().stuhlApplies) {
+        <div class="mt-3 space-y-2">
+          @for (level of [0, 1, 2, 3]; track level) {
+            <div
+              class="rounded-lg border transition"
+              [class]="
+                incontinenceValues().stuhlLevel === level
+                  ? 'border-brand-500 bg-brand-50 dark:border-brand-500 dark:bg-brand-500/10'
+                  : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
+              "
+            >
+              <div class="flex items-center gap-2 px-3.5 py-2.5">
+                <label
+                  class="flex flex-1 cursor-pointer items-center gap-2.5 text-sm"
+                  [class]="incontinenceValues().stuhlLevel === level ? 'text-brand-700 dark:text-brand-400' : 'text-gray-600 dark:text-gray-300'"
+                >
+                  <input type="radio" class="sr-only" formControlName="stuhlLevel" name="stuhlLevel" [value]="level" />
+                  {{ scaleLabels[level] }}
+                </label>
+                @if (explanations['4.4.12'].levels?.[level]) {
+                  <button
+                    type="button"
+                    class="inline-flex shrink-0 items-center rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-brand-500 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-brand-400"
+                    [attr.aria-expanded]="isExplanationOpen('4.4.12', level)"
+                    [attr.aria-label]="'Erläuterung zu ' + scaleLabels[level]"
+                    (click)="toggleLevelExplanation('4.4.12', level)"
+                  >
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                    </svg>
+                  </button>
+                }
+              </div>
+              @if (isExplanationOpen('4.4.12', level)) {
+                <p class="border-t border-gray-200/70 px-3.5 py-2.5 text-xs leading-relaxed whitespace-pre-line text-gray-600 dark:border-gray-700/70 dark:text-gray-400">
+                  {{ explanations['4.4.12'].levels![level] }}
+                </p>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div [formGroup]="parenteralForm" class="rounded-xl border border-gray-200 p-4 dark:border-gray-800">
+      <p class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">Ernährung parenteral oder über Sonde</p>
+      <div class="space-y-2">
+        @for (
+          option of [
+            { value: 0, label: 'Keine, nicht täglich oder nicht auf Dauer' },
+            { value: 1, label: 'Täglich, zusätzlich zu oraler Nahrung' },
+            { value: 2, label: 'Ausschließlich oder nahezu ausschließlich' },
+          ];
+          track option.value
+        ) {
+          <div
+            class="rounded-lg border transition"
+            [class]="
+              parenteralValues()['4.4.13'] === option.value
+                ? 'border-brand-500 bg-brand-50 dark:border-brand-500 dark:bg-brand-500/10'
+                : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
+            "
+          >
+            <div class="flex items-center gap-2 px-3.5 py-2.5">
+              <label
+                class="flex flex-1 cursor-pointer items-center gap-2.5 text-sm"
+                [class]="parenteralValues()['4.4.13'] === option.value ? 'text-brand-700 dark:text-brand-400' : 'text-gray-600 dark:text-gray-300'"
+              >
+                <input type="radio" class="sr-only" formControlName="4.4.13" name="parenteral" [value]="option.value" />
+                {{ option.label }}
+              </label>
+              @if (explanations['4.4.13'].levels?.[option.value]) {
+                <button
+                  type="button"
+                  class="inline-flex shrink-0 items-center rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-brand-500 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-brand-400"
+                  [attr.aria-expanded]="isExplanationOpen('4.4.13', option.value)"
+                  [attr.aria-label]="'Erläuterung zu ' + option.label"
+                  (click)="toggleLevelExplanation('4.4.13', option.value)"
+                >
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                  </svg>
+                </button>
+              }
+            </div>
+            @if (isExplanationOpen('4.4.13', option.value)) {
+              <p class="border-t border-gray-200/70 px-3.5 py-2.5 text-xs leading-relaxed whitespace-pre-line text-gray-600 dark:border-gray-700/70 dark:text-gray-400">
+                {{ explanations['4.4.13'].levels![option.value] }}
+              </p>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="flex justify-end pt-2">
+      <button type="button" class="btn-primary" [disabled]="saving()" (click)="submit()">Weiter zu Modul 5</button>
+    </div>
+  </div>
+</section>

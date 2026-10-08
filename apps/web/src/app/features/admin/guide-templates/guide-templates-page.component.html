@@ -1,0 +1,107 @@
+<section class="mx-auto max-w-3xl">
+  <a routerLink="/admin" class="link text-sm">← Admin-Übersicht</a>
+  <h1 class="mt-2 text-2xl font-semibold text-gray-800 dark:text-white">Leitfaden-Textbausteine</h1>
+
+  <div class="card mt-6">
+    <form [formGroup]="form" (ngSubmit)="save()" class="space-y-4">
+      <div>
+        <label class="label">Art des Bausteins</label>
+        <div class="flex gap-4">
+          <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+            <input type="radio" formControlName="kind" name="kind" value="general" class="h-4 w-4 text-brand-500 focus:ring-brand-500" />
+            Allgemein (pro Pflegegrad)
+          </label>
+          <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+            <input type="radio" formControlName="kind" name="kind" value="module" class="h-4 w-4 text-brand-500 focus:ring-brand-500" />
+            Modulspezifisch (pro Modul + Schweregrad)
+          </label>
+        </div>
+      </div>
+
+      @if (kind() === 'general') {
+        <div>
+          <label class="label">Pflegegrad</label>
+          <select class="input" formControlName="pflegegrad">
+            @for (pg of pflegegrade; track pg) {
+              <option [value]="pg">{{ pg === 0 ? 'Kein Pflegegrad' : 'Pflegegrad ' + pg }}</option>
+            }
+          </select>
+        </div>
+      } @else {
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label class="label">Modul</label>
+            <select class="input" formControlName="moduleNumber">
+              @for (m of moduleNumbers; track m) {
+                <option [value]="m">Modul {{ m }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label class="label">Schweregrad</label>
+            <select class="input" formControlName="scoreBand">
+              @for (band of severityBands; track band) {
+                <option [value]="band">{{ band }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      }
+
+      <div>
+        <label class="label">Titel</label>
+        <input type="text" class="input" formControlName="title" />
+      </div>
+
+      <div>
+        <label class="label">Text (Markdown)</label>
+        <textarea class="input" formControlName="bodyMarkdown" rows="5"></textarea>
+      </div>
+
+      <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+        <input type="checkbox" formControlName="isActive" class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500" />
+        Aktiv
+      </label>
+
+      @if (errorMessage()) {
+        <p class="alert-error">{{ errorMessage() }}</p>
+      }
+
+      <div class="flex gap-3">
+        <button type="submit" class="btn-primary" [disabled]="saving()">{{ editingId() ? 'Speichern' : 'Anlegen' }}</button>
+        @if (editingId()) {
+          <button type="button" class="btn-secondary" (click)="startNew()">Abbrechen</button>
+        }
+      </div>
+    </form>
+  </div>
+
+  <div class="card mt-6">
+    <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Bestehende Bausteine</h2>
+    @if (loading()) {
+      <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">Lade…</p>
+    } @else {
+      <ul class="mt-4 divide-y divide-gray-100 dark:divide-gray-800">
+        @for (t of templates(); track t.id) {
+          <li class="flex flex-wrap items-center justify-between gap-3 py-3">
+            <div>
+              <p class="text-sm font-medium text-gray-800 dark:text-white">
+                {{ t.title }}
+                @if (!t.is_active) {
+                  <span class="badge-neutral ml-2">inaktiv</span>
+                }
+              </p>
+              <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                {{ t.module_number ? 'Modul ' + t.module_number + ' / ' + t.score_band : 'Pflegegrad ' + t.pflegegrad }}
+              </p>
+            </div>
+            <div class="flex gap-2">
+              <button type="button" class="btn-secondary px-3! py-1.5! text-xs" (click)="edit(t)">Bearbeiten</button>
+              <button type="button" class="btn-ghost px-3! py-1.5! text-xs" (click)="remove(t.id)">Löschen</button>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</section>

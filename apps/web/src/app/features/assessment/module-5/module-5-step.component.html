@@ -1,0 +1,36 @@
+<section class="mx-auto max-w-3xl">
+  <app-wizard-progress [currentStep]="5" title="Krankheits- und therapiebedingte Anforderungen" />
+
+  <div class="card space-y-6">
+    <p class="alert-info">Trage bei jeder Maßnahme ein, wie oft sie vorkommt (0 = kommt nicht vor).</p>
+
+    <div>
+      <h2 class="mb-3 text-sm font-semibold text-gray-800 dark:text-white">Behandlungspflege</h2>
+      <app-frequency-question-group [questions]="group1Questions" [form]="group1Form" [explanations]="explanations" />
+    </div>
+
+    <div>
+      <h2 class="mb-3 text-sm font-semibold text-gray-800 dark:text-white">Versorgungsmaßnahmen</h2>
+      <app-frequency-question-group [questions]="group2Questions" [form]="group2Form" [explanations]="explanations" />
+    </div>
+
+    <div>
+      <h2 class="mb-3 text-sm font-semibold text-gray-800 dark:text-white">Arzt- und Therapiebesuche</h2>
+      <app-frequency-question-group [questions]="group3Questions" [form]="group3Form" [explanations]="explanations" />
+    </div>
+
+    <div>
+      <h2 class="mb-3 text-sm font-semibold text-gray-800 dark:text-white">Diät und Verhaltensvorschriften</h2>
+      <app-level-question-group
+        [questions]="diaetQuestions"
+        [scaleLabels]="scaleLabels"
+        [form]="diaetForm"
+        [explanations]="explanations"
+      />
+    </div>
+
+    <div class="flex justify-end pt-2">
+      <button type="button" class="btn-primary" [disabled]="saving()" (click)="submit()">Weiter zu Modul 6</button>
+    </div>
+  </div>
+</section>

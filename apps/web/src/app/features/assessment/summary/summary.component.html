@@ -1,0 +1,22 @@
+<section class="mx-auto max-w-2xl">
+  <h1 class="text-2xl font-semibold text-gray-800 dark:text-white">Zusammenfassung</h1>
+  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+    Du hast alle 6 Module ausgefüllt. Mit "Berechnung starten" wird dein Pflegegrad anhand der
+    aktuell gültigen Begutachtungsrichtlinie ermittelt.
+  </p>
+
+  <div class="card mt-6">
+    @if (errorMessage()) {
+      <p class="alert-error mb-4">{{ errorMessage() }}</p>
+    }
+
+    <button type="button" class="btn-primary w-full" [disabled]="calculating()" (click)="calculate()">
+      Berechnung starten
+    </button>
+
+    <p class="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
+      Einzelne Module nochmal ändern?
+      <a [routerLink]="['/assessment', assessmentId, 'module', 1]" class="link">Zurück zu Modul 1</a>
+    </p>
+  </div>
+</section>

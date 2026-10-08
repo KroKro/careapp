@@ -1,0 +1,53 @@
+<div class="flex min-h-screen items-center justify-center px-4 py-12">
+  <div class="w-full max-w-md">
+    <div class="mb-8 text-center">
+      <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-500 text-xl font-semibold text-white">
+        P
+      </div>
+      <h1 class="text-2xl font-semibold text-gray-800 dark:text-white">Registrieren</h1>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Pflegegrad-Einschätzung</p>
+    </div>
+
+    <div class="card">
+      @if (submitted()) {
+        <p class="alert-info">
+          Registrierung erfolgreich. Bitte bestätige deine E-Mail-Adresse über den Link, den wir dir
+          geschickt haben, bevor du dich anmeldest.
+        </p>
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-5">
+          <div>
+            <label class="label">E-Mail</label>
+            <input type="email" class="input" formControlName="email" autocomplete="email" />
+          </div>
+
+          <div>
+            <label class="label">Passwort (mind. 8 Zeichen)</label>
+            <input type="password" class="input" formControlName="password" autocomplete="new-password" />
+          </div>
+
+          <label class="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-300">
+            <input type="checkbox" class="mt-0.5 h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500" formControlName="healthDataConsent" />
+            <span>
+              Ich willige ausdrücklich ein, dass meine Angaben zu meinem Gesundheitszustand
+              verarbeitet werden, um eine Pflegegrad-Einschätzung zu erstellen (Art. 9 Abs. 2 lit. a
+              DSGVO). Diese Einwilligung kann ich jederzeit über mein Konto widerrufen.
+            </span>
+          </label>
+
+          @if (errorMessage()) {
+            <p class="alert-error">{{ errorMessage() }}</p>
+          }
+
+          <button type="submit" class="btn-primary w-full" [disabled]="submitting()">Konto erstellen</button>
+        </form>
+      }
+    </div>
+
+    @if (!submitted()) {
+      <p class="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+        <a routerLink="/auth/login" class="link">Ich habe bereits ein Konto</a>
+      </p>
+    }
+  </div>
+</div>

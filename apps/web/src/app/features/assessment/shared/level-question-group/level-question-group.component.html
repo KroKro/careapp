@@ -1,0 +1,71 @@
+<div [formGroup]="form" class="space-y-4">
+  @for (question of questions; track question.id) {
+    <div class="rounded-xl border border-gray-200 p-4 dark:border-gray-800">
+      <p class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ question.label }}</p>
+      @if (explanations?.[question.id]?.definition) {
+        <p class="mt-1 mb-3 text-xs text-gray-500 dark:text-gray-400">{{ explanations![question.id].definition }}</p>
+      } @else {
+        <div class="mb-3"></div>
+      }
+
+      <div class="space-y-2">
+        @for (level of levels; track level) {
+          <div
+            class="rounded-lg border transition"
+            [class]="
+              values()[question.id] === level
+                ? 'border-brand-500 bg-brand-50 dark:border-brand-500 dark:bg-brand-500/10'
+                : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
+            "
+          >
+            <div class="flex items-center gap-2 px-3.5 py-2.5">
+              <label
+                class="flex flex-1 cursor-pointer items-center gap-2.5 text-sm"
+                [class]="
+                  values()[question.id] === level
+                    ? 'text-brand-700 dark:text-brand-400'
+                    : 'text-gray-600 dark:text-gray-300'
+                "
+              >
+                <input type="radio" class="sr-only" [formControlName]="question.id" [name]="question.id" [value]="level" />
+                <span
+                  class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2"
+                  [class]="values()[question.id] === level ? 'border-brand-500' : 'border-gray-300 dark:border-gray-600'"
+                >
+                  @if (values()[question.id] === level) {
+                    <span class="h-2 w-2 rounded-full bg-brand-500"></span>
+                  }
+                </span>
+                {{ scaleLabels[level] }}
+              </label>
+
+              @if (explanations?.[question.id]?.levels?.[level]) {
+                <button
+                  type="button"
+                  class="inline-flex shrink-0 items-center rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-brand-500 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-brand-400"
+                  [attr.aria-expanded]="isExplanationOpen(question.id, level)"
+                  [attr.aria-label]="'Erläuterung zu ' + scaleLabels[level]"
+                  (click)="toggleLevelExplanation(question.id, level)"
+                >
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
+                    />
+                  </svg>
+                </button>
+              }
+            </div>
+
+            @if (isExplanationOpen(question.id, level)) {
+              <p class="border-t border-gray-200/70 px-3.5 py-2.5 text-xs leading-relaxed whitespace-pre-line text-gray-600 dark:border-gray-700/70 dark:text-gray-400">
+                {{ explanations![question.id].levels![level] }}
+              </p>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

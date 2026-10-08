@@ -1,0 +1,21 @@
+<section class="mx-auto max-w-3xl">
+  <app-wizard-progress [currentStep]="2" title="Kognitive und kommunikative Fähigkeiten" />
+
+  <div class="card space-y-4">
+    <p class="alert-info">
+      Hinweis: Auch wenn hier keine Beeinträchtigungen vorliegen, fülle bitte auch Modul 3 aus –
+      es zählt jeweils nur der höhere der beiden Werte.
+    </p>
+
+    <app-level-question-group
+      [questions]="questions"
+      [scaleLabels]="scaleLabels"
+      [form]="form"
+      [explanations]="explanations"
+    />
+
+    <div class="flex justify-end pt-2">
+      <button type="button" class="btn-primary" [disabled]="saving()" (click)="submit()">Weiter zu Modul 3</button>
+    </div>
+  </div>
+</section>

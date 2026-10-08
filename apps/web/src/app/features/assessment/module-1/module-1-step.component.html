@@ -1,0 +1,45 @@
+<section class="mx-auto max-w-3xl">
+  <app-wizard-progress [currentStep]="1" title="Mobilität" />
+
+  <div class="card space-y-4">
+    <app-level-question-group
+      [questions]="questions"
+      [scaleLabels]="scaleLabels"
+      [form]="form"
+      [explanations]="explanations"
+    />
+
+    <div class="rounded-xl border border-warning-500/30 bg-warning-50 p-4 dark:bg-warning-500/10">
+      <label class="flex items-start gap-3 text-sm text-warning-700 dark:text-warning-500">
+        <input
+          type="checkbox"
+          class="mt-0.5 h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
+          [formControl]="form.controls.besondereBedarfskonstellation"
+        />
+        <span>
+          <strong>Besondere Bedarfskonstellation:</strong> Es liegt eine Gebrauchsunfähigkeit
+          beider Arme und beider Beine vor (z. B. vollständiger Verlust der Greif-, Steh- und
+          Gehfunktion, etwa bei Wachkoma oder hochgradigen Kontrakturen). Dies führt unabhängig
+          vom Gesamtpunktwert zu Pflegegrad 5.
+        </span>
+      </label>
+      <button
+        type="button"
+        class="mt-2 text-xs font-medium text-warning-700 underline decoration-dotted hover:text-warning-700/80 dark:text-warning-500"
+        [attr.aria-expanded]="showBedarfskonstellationDetail()"
+        (click)="showBedarfskonstellationDetail.set(!showBedarfskonstellationDetail())"
+      >
+        {{ showBedarfskonstellationDetail() ? 'Weniger anzeigen' : 'Offizielle Definition anzeigen' }}
+      </button>
+      @if (showBedarfskonstellationDetail()) {
+        <p class="mt-2 whitespace-pre-line text-xs leading-relaxed text-warning-700/90 dark:text-warning-500/90">
+          {{ besondereBedarfskonstellationExplanation }}
+        </p>
+      }
+    </div>
+
+    <div class="flex justify-end pt-2">
+      <button type="button" class="btn-primary" [disabled]="saving()" (click)="submit()">Weiter zu Modul 2</button>
+    </div>
+  </div>
+</section>

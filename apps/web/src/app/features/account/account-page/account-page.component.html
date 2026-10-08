@@ -1,0 +1,41 @@
+<section class="mx-auto max-w-2xl">
+  <h1 class="text-2xl font-semibold text-gray-800 dark:text-white">Konto</h1>
+  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ auth.session()?.user?.email }}</p>
+
+  @if (errorMessage()) {
+    <p class="alert-error mt-4">{{ errorMessage() }}</p>
+  }
+  @if (info()) {
+    <p class="alert-info mt-4">{{ info() }}</p>
+  }
+
+  @if (!loading() && profile()?.deletion_requested_at) {
+    <div class="card mt-6 border-warning-500/30 bg-warning-50 dark:bg-warning-500/10">
+      <p class="text-sm text-warning-700 dark:text-warning-500">
+        Dein Konto ist zur Löschung vorgemerkt und wird am <strong>{{ deletionDueDate() }}</strong>
+        endgültig gelöscht, sofern du nicht vorher widersprichst.
+      </p>
+      <button type="button" class="btn-secondary mt-3" [disabled]="busy()" (click)="cancelDeletion()">
+        Löschung abbrechen
+      </button>
+    </div>
+  }
+
+  <div class="card mt-6">
+    <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Deine Daten</h2>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+      Du kannst jederzeit eine Kopie aller deiner Daten herunterladen (Art. 20 DSGVO) oder dein
+      Konto inklusive aller Daten löschen lassen (Art. 17 DSGVO).
+    </p>
+    <div class="mt-4 flex flex-wrap gap-3">
+      <button type="button" class="btn-secondary" [disabled]="busy()" (click)="exportData()">
+        Alle meine Daten exportieren
+      </button>
+      @if (!profile()?.deletion_requested_at) {
+        <button type="button" class="btn-danger" [disabled]="busy()" (click)="requestDeletion()">
+          Konto und alle Daten löschen
+        </button>
+      }
+    </div>
+  </div>
+</section>
