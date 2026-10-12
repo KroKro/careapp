@@ -49,7 +49,7 @@ export const MODULE2_QUESTIONS: LevelQuestionConfig[] = [
 export const MODULE3_QUESTIONS: LevelQuestionConfig[] = [
   { id: '4.3.1', label: 'Motorisch geprägte Verhaltensauffälligkeiten' },
   { id: '4.3.2', label: 'Nächtliche Unruhe' },
-  { id: '4.3.3', label: 'Selbstbeschädigendes und autoaggressives Verhalten' },
+  { id: '4.3.3', label: 'Selbstschädigendes und autoaggressives Verhalten' },
   { id: '4.3.4', label: 'Beschädigen von Gegenständen' },
   { id: '4.3.5', label: 'Physisch aggressives Verhalten gegenüber anderen Personen' },
   { id: '4.3.6', label: 'Verbale Aggression' },
@@ -84,7 +84,7 @@ export const MODULE6_QUESTIONS: LevelQuestionConfig[] = [
   { id: '4.6.3', label: 'Sichbeschäftigen' },
   { id: '4.6.4', label: 'Vornehmen von in die Zukunft gerichteten Planungen' },
   { id: '4.6.5', label: 'Interaktion mit Personen im direkten Kontakt' },
-  { id: '4.6.6', label: 'Kontaktpflege zu Personen außerhalb des direkten Umfeldes' },
+  { id: '4.6.6', label: 'Kontaktpflege zu Personen außerhalb des direkten Umfelds' },
 ];
 
 export interface FrequencyQuestionConfig {
@@ -103,7 +103,7 @@ export const MODULE5_GROUP1_QUESTIONS: FrequencyQuestionConfig[] = [
 ];
 
 export const MODULE5_GROUP2_QUESTIONS: FrequencyQuestionConfig[] = [
-  { id: '4.5.8', label: 'Verbandwechsel und Wundversorgung' },
+  { id: '4.5.8', label: 'Verbandswechsel und Wundversorgung' },
   { id: '4.5.9', label: 'Versorgung mit Stoma' },
   { id: '4.5.10', label: 'Regelmäßige Einmalkatheterisierung und Nutzung von Abführmethoden' },
   { id: '4.5.11', label: 'Therapiemaßnahmen in häuslicher Umgebung' },

@@ -33,6 +33,12 @@ BRi-Richtlinien-PDFs im selben Ordner.
 - `supabase/functions/export-data`: Art.-20-Datenexport als ZIP (Profil, Assessments,
   Ergebnisse, Leitfäden+PDFs, Dokumente) — läuft bewusst nur mit dem Nutzer-JWT
   (keine Service-Role nötig, RLS reicht für den Lesezugriff auf eigene Daten).
+- `supabase/functions/admin-list-users`: Nutzerübersicht für den Admin-Bereich
+  (`/admin/users`) — liefert nur Account-Stammdaten (E-Mail, Rolle, Login/Registrierungs-
+  Zeitpunkte, Einwilligungs-/Lösch-Status) über die Service-Role, da E-Mails aus
+  `auth.users` nicht per Client-RLS lesbar sind. Prüft vorab per `is_admin()`-RPC mit
+  dem Nutzer-JWT, dass die aufrufende Person tatsächlich Admin ist. Bewusst KEIN
+  Zugriff auf Gesundheitsdaten (assessments/assessment_modules/documents).
 - `supabase/functions/purge-expired-accounts`: täglich per Cron aufzurufende Function
   (Art. 17 DSGVO) — merkt inaktive Accounts (>24 Monate ohne Login) automatisch zur
   Löschung vor und löscht Accounts endgültig, deren 14-tägige Widerrufsfrist
@@ -55,7 +61,7 @@ BRi-Richtlinien-PDFs im selben Ordner.
 4. Seed einspielen: Inhalt von `supabase/seed.sql` im SQL-Editor des Dashboards
    ausführen (oder `psql` gegen die Connection-String aus den Projekteinstellungen).
 5. Edge Functions deployen:
-   `supabase functions deploy calculate-pflegegrad scan-document generate-guide export-data purge-expired-accounts`.
+   `supabase functions deploy calculate-pflegegrad scan-document generate-guide export-data admin-list-users purge-expired-accounts`.
 6. AV-Scanner gemäß `infra/av-scanner/README.md` auf einer eigenen EU-VM deployen,
    dann `supabase secrets set AV_SCANNER_URL=... AV_SCANNER_SECRET=...`.
 7. Secret für `purge-expired-accounts` setzen (beliebiger zufälliger String, z. B.
@@ -99,6 +105,44 @@ vom Repo-Root). Von einer übergeordneten Ebene aus erkennt Deno das npm-Workspa
 des Angular-Frontends und lädt dessen komplette, unzusammenhängende Dependency-
 Graph mit — `--node-modules-dir=none` plus `supabase/deno.json` verhindert das nur,
 wenn `supabase/` auch tatsächlich das Arbeitsverzeichnis ist.
+
+### 4. Frontend-Hosting (Azure Static Web Apps)
+
+CI/CD liegt in `.github/workflows/azure-static-web-apps.yml`: baut bei jedem Push auf
+`main` (und für PR-Preview-Umgebungen) die Angular-App selbst
+(`npm ci` + `npm run build --workspace=web`, Oryx-Auto-Build ist wegen des
+npm-Workspace-Monorepos bewusst deaktiviert — `skip_app_build: true`) und lädt
+`apps/web/dist/web/browser` direkt hoch. Einmalige Einrichtung (einmalig per Azure-
+Account/Abo, kann nicht automatisiert werden):
+
+1. Azure Static Web App anlegen — entweder im Portal (Deployment-Quelle **"Other"**
+   wählen, damit Azure keinen eigenen, abweichenden Workflow generiert) oder per CLI:
+   ```bash
+   az login
+   az staticwebapp create \
+     --name careapp \
+     --resource-group <deine-resource-group> \
+     --location "West Europe"
+   ```
+2. Deployment-Token holen:
+   ```bash
+   az staticwebapp secrets list --name careapp --query "properties.apiKey" -o tsv
+   ```
+   (oder im Portal: Static Web App → Übersicht → "Bereitstellungstoken verwalten").
+3. Token als Repo-Secret `AZURE_STATIC_WEB_APPS_API_TOKEN` hinterlegen:
+   ```bash
+   gh secret set AZURE_STATIC_WEB_APPS_API_TOKEN --body "<token>"
+   ```
+   (oder GitHub → Repo → Settings → Secrets and variables → Actions → New repository secret).
+4. Push auf `main` → Workflow deployed automatisch. SPA-Routing-Fallback für die
+   Angular-Routen übernimmt `apps/web/public/staticwebapp.config.json`
+   (`navigationFallback` → `index.html`, landet via Angular-Assets-Pipeline automatisch
+   im Build-Output).
+
+**Hinweis:** `environment.prod.ts` zeigt aktuell auf dasselbe Supabase-Projekt wie
+`environment.ts` (es existiert bislang nur das eine verlinkte Cloud-Projekt). Falls ein
+separates Produktions-Supabase-Projekt vorgesehen ist, vor dem ersten echten Nutzer-
+Traffic `environment.prod.ts` entsprechend umstellen.
 
 ## Nächste Schritte (siehe Plan, Phase 7)
 7. RAG-Erweiterung (`document_embeddings`, pgvector ist in der Migration bereits aktiviert).

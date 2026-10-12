@@ -57,6 +57,7 @@ export class DocumentsPageComponent implements OnInit {
   }
 
   async remove(doc: DocumentRow) {
+    if (!confirm(`"${doc.original_filename}" wirklich unwiderruflich löschen?`)) return;
     await this.documentsService.remove(doc);
     await this.reload();
   }

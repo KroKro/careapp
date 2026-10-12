@@ -16,6 +16,7 @@ export class ResetPasswordComponent {
 
   readonly submitting = signal(false);
   readonly errorMessage = signal<string | null>(null);
+  readonly showPassword = signal(false);
 
   readonly form = this.fb.group({
     password: ['', [Validators.required, Validators.minLength(8)]],

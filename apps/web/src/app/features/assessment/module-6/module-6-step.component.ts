@@ -43,4 +43,12 @@ export class Module6StepComponent implements OnInit {
       this.saving.set(false);
     }
   }
+
+  goBack() {
+    this.router.navigate(['/assessment', this.assessmentId, 'module', 5]);
+  }
+
+  cancel() {
+    this.router.navigate(['/assessment']);
+  }
 }

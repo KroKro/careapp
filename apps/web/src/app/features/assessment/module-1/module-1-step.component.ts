@@ -50,4 +50,8 @@ export class Module1StepComponent implements OnInit {
       this.saving.set(false);
     }
   }
+
+  cancel() {
+    this.router.navigate(['/assessment']);
+  }
 }

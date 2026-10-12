@@ -17,4 +17,8 @@ export const ADMIN_ROUTES: Routes = [
         (m) => m.ScoringRulesetsPageComponent,
       ),
   },
+  {
+    path: 'users',
+    loadComponent: () => import('./users/admin-users-page.component').then((m) => m.AdminUsersPageComponent),
+  },
 ];

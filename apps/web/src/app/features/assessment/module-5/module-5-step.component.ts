@@ -79,4 +79,12 @@ export class Module5StepComponent implements OnInit {
       this.saving.set(false);
     }
   }
+
+  goBack() {
+    this.router.navigate(['/assessment', this.assessmentId, 'module', 4]);
+  }
+
+  cancel() {
+    this.router.navigate(['/assessment']);
+  }
 }

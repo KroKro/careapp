@@ -8,5 +8,5 @@ import { Component, Input } from '@angular/core';
 export class WizardProgressComponent {
   @Input({ required: true }) currentStep = 1;
   @Input({ required: true }) title = '';
-  readonly totalSteps = 6;
+  @Input() totalSteps = 6;
 }

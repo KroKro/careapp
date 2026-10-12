@@ -14,6 +14,8 @@
   <div class="card mt-6">
     @if (loading()) {
       <p class="text-sm text-gray-500 dark:text-gray-400">Lade…</p>
+    } @else if (rulesets().length === 0) {
+      <p class="text-sm text-gray-500 dark:text-gray-400">Noch keine Rulesets angelegt.</p>
     } @else {
       <ul class="divide-y divide-gray-100 dark:divide-gray-800">
         @for (r of rulesets(); track r.id) {

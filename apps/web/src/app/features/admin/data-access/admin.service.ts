@@ -24,6 +24,16 @@ export interface GuideTemplateInput {
   is_active: boolean;
 }
 
+export interface AdminUserRow {
+  id: string;
+  email: string | null;
+  created_at: string;
+  last_sign_in_at: string | null;
+  role: string;
+  consent_health_data_at: string | null;
+  deletion_requested_at: string | null;
+}
+
 export interface ScoringRulesetRow {
   id: string;
   version_label: string;
@@ -113,5 +123,13 @@ export class AdminService {
       is_active: false,
     });
     if (error) throw error;
+  }
+
+  async listUsers(): Promise<AdminUserRow[]> {
+    const { data, error } = await this.supabase.client.functions.invoke('admin-list-users', {
+      body: {},
+    });
+    if (error) throw error;
+    return (data?.users ?? []) as AdminUserRow[];
   }
 }

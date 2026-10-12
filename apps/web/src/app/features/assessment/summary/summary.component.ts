@@ -1,11 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AssessmentService } from '../data-access/assessment.service';
+import { WizardProgressComponent } from '../shared/wizard-progress/wizard-progress.component';
 
 @Component({
   selector: 'app-summary',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, WizardProgressComponent],
   templateUrl: './summary.component.html',
 })
 export class SummaryComponent {

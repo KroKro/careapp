@@ -1,0 +1,57 @@
+<section class="mx-auto max-w-4xl">
+  <a routerLink="/admin" class="link text-sm">← Admin-Übersicht</a>
+  <h1 class="mt-2 text-2xl font-semibold text-gray-800 dark:text-white">Nutzerübersicht</h1>
+  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+    Zeigt ausschließlich Account-Stammdaten zu Verwaltungszwecken. Gesundheitsdaten (Modul-Antworten,
+    Pflegegrad-Ergebnisse, Dokumente) sind hier bewusst nicht einsehbar.
+  </p>
+
+  @if (errorMessage()) {
+    <p class="alert-error mt-4">{{ errorMessage() }}</p>
+  }
+
+  <div class="card mt-6 overflow-x-auto">
+    @if (loading()) {
+      <p class="text-sm text-gray-500 dark:text-gray-400">Lade…</p>
+    } @else if (users().length === 0) {
+      <p class="text-sm text-gray-500 dark:text-gray-400">Noch keine Nutzer registriert.</p>
+    } @else {
+      <table class="w-full min-w-[640px] text-left text-sm">
+        <thead>
+          <tr class="border-b border-gray-200 text-xs tracking-wide text-gray-500 uppercase dark:border-gray-800 dark:text-gray-400">
+            <th class="pb-3 pr-4 font-medium">E-Mail</th>
+            <th class="pb-3 pr-4 font-medium">Rolle</th>
+            <th class="pb-3 pr-4 font-medium">Registriert am</th>
+            <th class="pb-3 pr-4 font-medium">Letzter Login</th>
+            <th class="pb-3 pr-4 font-medium">Einwilligung Gesundheitsdaten</th>
+            <th class="pb-3 font-medium">Status</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+          @for (u of users(); track u.id) {
+            <tr>
+              <td class="py-3 pr-4 text-gray-800 dark:text-white">{{ u.email ?? '–' }}</td>
+              <td class="py-3 pr-4">
+                @if (u.role === 'admin') {
+                  <span class="badge-success">admin</span>
+                } @else {
+                  <span class="badge-neutral">user</span>
+                }
+              </td>
+              <td class="py-3 pr-4 text-gray-600 dark:text-gray-300">{{ formatDate(u.created_at) }}</td>
+              <td class="py-3 pr-4 text-gray-600 dark:text-gray-300">{{ formatDate(u.last_sign_in_at) }}</td>
+              <td class="py-3 pr-4 text-gray-600 dark:text-gray-300">{{ formatDate(u.consent_health_data_at) }}</td>
+              <td class="py-3">
+                @if (u.deletion_requested_at) {
+                  <span class="badge-warning">zur Löschung vorgemerkt</span>
+                } @else {
+                  <span class="badge-success">aktiv</span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</section>

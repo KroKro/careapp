@@ -11,7 +11,7 @@
       <div class="space-y-2">
         @for (level of levels; track level) {
           <div
-            class="rounded-lg border transition"
+            class="rounded-lg border transition has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-500 has-[:focus-visible]:ring-offset-2 dark:has-[:focus-visible]:ring-offset-gray-900"
             [class]="
               values()[question.id] === level
                 ? 'border-brand-500 bg-brand-50 dark:border-brand-500 dark:bg-brand-500/10'

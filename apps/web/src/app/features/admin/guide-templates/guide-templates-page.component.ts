@@ -116,6 +116,8 @@ export class GuideTemplatesPageComponent implements OnInit, OnDestroy {
   }
 
   async remove(id: string) {
+    const title = this.templates().find((t) => t.id === id)?.title ?? 'diesen Baustein';
+    if (!confirm(`"${title}" wirklich unwiderruflich löschen?`)) return;
     await this.adminService.deleteGuideTemplate(id);
     await this.reload();
   }

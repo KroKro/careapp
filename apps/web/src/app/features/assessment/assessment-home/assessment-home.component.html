@@ -8,13 +8,30 @@
   <div class="card mt-6">
     <div class="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Neue Einschätzung</h2>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          Dauert etwa 15–20 Minuten. Du kannst jederzeit unterbrechen und später fortsetzen.
-        </p>
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-white">
+          {{ hasActiveAssessment ? 'Einschätzung fortsetzen' : 'Neue Einschätzung' }}
+        </h2>
+        @if (progressHint) {
+          <p class="mt-1 text-sm text-brand-600 dark:text-brand-400">{{ progressHint }}</p>
+        } @else {
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Dauert etwa 15–20 Minuten. Du kannst jederzeit unterbrechen und später fortsetzen.
+          </p>
+        }
       </div>
-      <button type="button" class="btn-primary shrink-0" [disabled]="starting()" (click)="startOrResume()">
-        Einschätzung starten / fortsetzen
+      <button
+        type="button"
+        class="btn-primary shrink-0"
+        [disabled]="starting() || checkingActive()"
+        (click)="startOrResume()"
+      >
+        @if (starting()) {
+          <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+          </svg>
+        }
+        {{ hasActiveAssessment ? 'Fortsetzen' : 'Einschätzung starten' }}
       </button>
     </div>
   </div>

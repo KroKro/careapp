@@ -38,8 +38,17 @@
       }
     </div>
 
-    <div class="flex justify-end pt-2">
-      <button type="button" class="btn-primary" [disabled]="saving()" (click)="submit()">Weiter zu Modul 2</button>
+    <div class="flex items-center justify-between pt-2">
+      <button type="button" class="link text-sm" (click)="cancel()">Abbrechen</button>
+      <button type="button" class="btn-primary" [disabled]="saving()" (click)="submit()">
+        @if (saving()) {
+          <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+          </svg>
+        }
+        Weiter zu Modul 2
+      </button>
     </div>
   </div>
 </section>

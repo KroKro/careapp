@@ -1,6 +1,6 @@
 <section class="mx-auto max-w-2xl">
-  <h1 class="text-2xl font-semibold text-gray-800 dark:text-white">Zusammenfassung</h1>
-  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+  <app-wizard-progress [currentStep]="7" [totalSteps]="7" title="Zusammenfassung" />
+  <p class="-mt-4 text-sm text-gray-500 dark:text-gray-400">
     Du hast alle 6 Module ausgefüllt. Mit "Berechnung starten" wird dein Pflegegrad anhand der
     aktuell gültigen Begutachtungsrichtlinie ermittelt.
   </p>
@@ -10,13 +10,26 @@
       <p class="alert-error mb-4">{{ errorMessage() }}</p>
     }
 
-    <button type="button" class="btn-primary w-full" [disabled]="calculating()" (click)="calculate()">
-      Berechnung starten
-    </button>
+    <div class="flex items-center justify-between">
+      <a [routerLink]="['/assessment', assessmentId, 'module', 6]" class="btn-secondary">Zurück</a>
+      <button type="button" class="btn-primary" [disabled]="calculating()" (click)="calculate()">
+        @if (calculating()) {
+          <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+          </svg>
+        }
+        {{ calculating() ? 'Wird berechnet…' : 'Berechnung starten' }}
+      </button>
+    </div>
 
     <p class="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
       Einzelne Module nochmal ändern?
       <a [routerLink]="['/assessment', assessmentId, 'module', 1]" class="link">Zurück zu Modul 1</a>
+    </p>
+
+    <p class="mt-2 text-center">
+      <a [routerLink]="['/assessment']" class="link text-sm">Abbrechen</a>
     </p>
   </div>
 </section>

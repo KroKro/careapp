@@ -27,7 +27,7 @@
         <div class="mt-3 space-y-2">
           @for (level of [0, 1, 2, 3]; track level) {
             <div
-              class="rounded-lg border transition"
+              class="rounded-lg border transition has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-500 has-[:focus-visible]:ring-offset-2 dark:has-[:focus-visible]:ring-offset-gray-900"
               [class]="
                 incontinenceValues().harnLevel === level
                   ? 'border-brand-500 bg-brand-50 dark:border-brand-500 dark:bg-brand-500/10'
@@ -79,7 +79,7 @@
         <div class="mt-3 space-y-2">
           @for (level of [0, 1, 2, 3]; track level) {
             <div
-              class="rounded-lg border transition"
+              class="rounded-lg border transition has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-500 has-[:focus-visible]:ring-offset-2 dark:has-[:focus-visible]:ring-offset-gray-900"
               [class]="
                 incontinenceValues().stuhlLevel === level
                   ? 'border-brand-500 bg-brand-50 dark:border-brand-500 dark:bg-brand-500/10'
@@ -131,7 +131,7 @@
           track option.value
         ) {
           <div
-            class="rounded-lg border transition"
+            class="rounded-lg border transition has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-500 has-[:focus-visible]:ring-offset-2 dark:has-[:focus-visible]:ring-offset-gray-900"
             [class]="
               parenteralValues()['4.4.13'] === option.value
                 ? 'border-brand-500 bg-brand-50 dark:border-brand-500 dark:bg-brand-500/10'
@@ -143,7 +143,7 @@
                 class="flex flex-1 cursor-pointer items-center gap-2.5 text-sm"
                 [class]="parenteralValues()['4.4.13'] === option.value ? 'text-brand-700 dark:text-brand-400' : 'text-gray-600 dark:text-gray-300'"
               >
-                <input type="radio" class="sr-only" formControlName="4.4.13" name="parenteral" [value]="option.value" />
+                <input type="radio" class="sr-only" formControlName="4.4.13" name="4.4.13" [value]="option.value" />
                 {{ option.label }}
               </label>
               @if (explanations['4.4.13'].levels?.[option.value]) {
@@ -170,8 +170,20 @@
       </div>
     </div>
 
-    <div class="flex justify-end pt-2">
-      <button type="button" class="btn-primary" [disabled]="saving()" (click)="submit()">Weiter zu Modul 5</button>
+    <div class="flex items-center justify-between pt-2">
+      <button type="button" class="link text-sm" (click)="cancel()">Abbrechen</button>
+      <div class="flex items-center gap-3">
+        <button type="button" class="btn-secondary" (click)="goBack()">Zurück</button>
+        <button type="button" class="btn-primary" [disabled]="saving()" (click)="submit()">
+          @if (saving()) {
+            <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+            </svg>
+          }
+          Weiter zu Modul 5
+        </button>
+      </div>
     </div>
   </div>
 </section>

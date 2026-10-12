@@ -110,4 +110,12 @@ export class Module4StepComponent implements OnInit, OnDestroy {
       this.saving.set(false);
     }
   }
+
+  goBack() {
+    this.router.navigate(['/assessment', this.assessmentId, 'module', 3]);
+  }
+
+  cancel() {
+    this.router.navigate(['/assessment']);
+  }
 }

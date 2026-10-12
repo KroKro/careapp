@@ -17,6 +17,7 @@ export class RegisterComponent {
   readonly submitting = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly submitted = signal(false);
+  readonly showPassword = signal(false);
 
   readonly form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],

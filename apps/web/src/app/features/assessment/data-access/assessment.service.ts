@@ -18,6 +18,25 @@ export interface GuideReportRow {
 export class AssessmentService {
   private readonly supabase = inject(SupabaseService);
 
+  /** Liest ein bestehendes "in_progress"-Assessment, ohne eines anzulegen. */
+  async getActiveAssessment(): Promise<{ id: string; currentStep: string | null } | null> {
+    const { data: userData } = await this.supabase.client.auth.getUser();
+    const userId = userData.user?.id;
+    if (!userId) return null;
+
+    const { data: existing } = await this.supabase.client
+      .from('assessments')
+      .select('id, current_step')
+      .eq('user_id', userId)
+      .eq('status', 'in_progress')
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (!existing) return null;
+    return { id: existing.id as string, currentStep: existing['current_step'] as string | null };
+  }
+
   /** Liefert ein bestehendes "in_progress"-Assessment oder legt ein neues an. */
   async startOrResumeAssessment(): Promise<{ id: string; currentStep: string | null }> {
     const { data: userData } = await this.supabase.client.auth.getUser();

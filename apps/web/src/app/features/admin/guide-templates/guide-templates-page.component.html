@@ -68,7 +68,15 @@
       }
 
       <div class="flex gap-3">
-        <button type="submit" class="btn-primary" [disabled]="saving()">{{ editingId() ? 'Speichern' : 'Anlegen' }}</button>
+        <button type="submit" class="btn-primary" [disabled]="saving()">
+          @if (saving()) {
+            <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+            </svg>
+          }
+          {{ editingId() ? 'Speichern' : 'Anlegen' }}
+        </button>
         @if (editingId()) {
           <button type="button" class="btn-secondary" (click)="startNew()">Abbrechen</button>
         }
@@ -80,6 +88,8 @@
     <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Bestehende Bausteine</h2>
     @if (loading()) {
       <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">Lade…</p>
+    } @else if (templates().length === 0) {
+      <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">Noch keine Textbausteine angelegt.</p>
     } @else {
       <ul class="mt-4 divide-y divide-gray-100 dark:divide-gray-800">
         @for (t of templates(); track t.id) {
