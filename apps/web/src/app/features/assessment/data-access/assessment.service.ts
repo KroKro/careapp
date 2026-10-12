@@ -14,56 +14,64 @@ export interface GuideReportRow {
   pdf_storage_path: string | null;
 }
 
+export interface AssessmentListItem {
+  id: string;
+  status: string;
+  current_step: string | null;
+  created_at: string;
+  updated_at: string;
+  pflegegrad: number | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AssessmentService {
   private readonly supabase = inject(SupabaseService);
 
-  /** Liest ein bestehendes "in_progress"-Assessment, ohne eines anzulegen. */
-  async getActiveAssessment(): Promise<{ id: string; currentStep: string | null } | null> {
+  /**
+   * Alle Einschätzungen der Nutzerin/des Nutzers (Entwürfe + abgeschlossene).
+   * Ein Account kann mehrere parallele Einschätzungen haben -- z. B. weil
+   * jemand sie für mehrere pflegebedürftige Angehörige ausfüllt.
+   */
+  async listAssessments(): Promise<AssessmentListItem[]> {
     const { data: userData } = await this.supabase.client.auth.getUser();
     const userId = userData.user?.id;
-    if (!userId) return null;
+    if (!userId) return [];
 
-    const { data: existing } = await this.supabase.client
+    const { data, error } = await this.supabase.client
       .from('assessments')
-      .select('id, current_step')
+      .select('id, status, current_step, created_at, updated_at, assessment_results(pflegegrad)')
       .eq('user_id', userId)
-      .eq('status', 'in_progress')
-      .order('updated_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .order('updated_at', { ascending: false });
+    if (error) throw error;
 
-    if (!existing) return null;
-    return { id: existing.id as string, currentStep: existing['current_step'] as string | null };
+    return (data ?? []).map((row) => {
+      const resultRelation = row['assessment_results'] as { pflegegrad: number } | { pflegegrad: number }[] | null;
+      const pflegegrad = Array.isArray(resultRelation) ? (resultRelation[0]?.pflegegrad ?? null) : (resultRelation?.pflegegrad ?? null);
+      return {
+        id: row['id'] as string,
+        status: row['status'] as string,
+        current_step: row['current_step'] as string | null,
+        created_at: row['created_at'] as string,
+        updated_at: row['updated_at'] as string,
+        pflegegrad,
+      };
+    });
   }
 
-  /** Liefert ein bestehendes "in_progress"-Assessment oder legt ein neues an. */
-  async startOrResumeAssessment(): Promise<{ id: string; currentStep: string | null }> {
+  /** Legt immer eine neue, leere Einschätzung an (auch wenn bereits andere existieren). */
+  async createNewAssessment(): Promise<string> {
     const { data: userData } = await this.supabase.client.auth.getUser();
     const userId = userData.user?.id;
     if (!userId) throw new Error('Nicht angemeldet.');
 
-    const { data: existing } = await this.supabase.client
-      .from('assessments')
-      .select('id, current_step')
-      .eq('user_id', userId)
-      .eq('status', 'in_progress')
-      .order('updated_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (existing) {
-      return { id: existing.id as string, currentStep: existing['current_step'] as string | null };
-    }
-
     const { data: created, error } = await this.supabase.client
       .from('assessments')
       .insert({ user_id: userId, current_step: '1' })
-      .select('id, current_step')
+      .select('id')
       .single();
 
     if (error) throw error;
-    return { id: created.id as string, currentStep: created['current_step'] as string | null };
+    return created.id as string;
   }
 
   async getModuleAnswers(

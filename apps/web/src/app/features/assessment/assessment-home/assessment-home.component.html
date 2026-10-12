@@ -1,38 +1,49 @@
 <div class="mx-auto max-w-3xl">
-  <h1 class="text-2xl font-semibold text-gray-800 dark:text-white">Pflegegrad-Einschätzung</h1>
-  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-    Schätze in sechs kurzen Abschnitten deine Selbständigkeit ein — genau die Bereiche, die auch
-    bei der offiziellen Begutachtung nach § 15 SGB XI geprüft werden.
-  </p>
-
-  <div class="card mt-6">
-    <div class="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <h2 class="text-lg font-semibold text-gray-800 dark:text-white">
-          {{ hasActiveAssessment ? 'Einschätzung fortsetzen' : 'Neue Einschätzung' }}
-        </h2>
-        @if (progressHint) {
-          <p class="mt-1 text-sm text-brand-600 dark:text-brand-400">{{ progressHint }}</p>
-        } @else {
-          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Dauert etwa 15–20 Minuten. Du kannst jederzeit unterbrechen und später fortsetzen.
-          </p>
-        }
-      </div>
-      <button
-        type="button"
-        class="btn-primary shrink-0"
-        [disabled]="starting() || checkingActive()"
-        (click)="startOrResume()"
-      >
-        @if (starting()) {
-          <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
-          </svg>
-        }
-        {{ hasActiveAssessment ? 'Fortsetzen' : 'Einschätzung starten' }}
-      </button>
+  <div class="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold text-gray-800 dark:text-white">Deine Einschätzungen</h1>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        Du kannst mehrere Einschätzungen anlegen, z. B. für verschiedene Angehörige, und jede
+        einzeln fortsetzen oder einsehen.
+      </p>
     </div>
+    <button type="button" class="btn-primary shrink-0" [disabled]="creating()" (click)="createNew()">
+      @if (creating()) {
+        <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+        </svg>
+      }
+      Neue Einschätzung
+    </button>
+  </div>
+
+  @if (errorMessage()) {
+    <p class="alert-error mt-4">{{ errorMessage() }}</p>
+  }
+
+  <div class="mt-6">
+    @if (loading()) {
+      <p class="text-sm text-gray-500 dark:text-gray-400">Lade…</p>
+    } @else if (assessments().length === 0) {
+      <div class="card text-center">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Noch keine Einschätzung</h2>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          Dauert etwa 15–20 Minuten. Du kannst jederzeit unterbrechen und später fortsetzen.
+        </p>
+      </div>
+    } @else {
+      <ul class="space-y-3">
+        @for (a of assessments(); track a.id) {
+          <li class="card flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-800 dark:text-white">{{ statusLabel(a) }}</p>
+              <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Erstellt am {{ formatDate(a.created_at) }}</p>
+            </div>
+            <a [routerLink]="linkFor(a)" class="btn-secondary shrink-0">{{ actionLabel(a) }}</a>
+          </li>
+        }
+      </ul>
+    }
   </div>
 </div>
