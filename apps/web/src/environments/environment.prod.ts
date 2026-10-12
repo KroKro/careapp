@@ -4,6 +4,8 @@
 // nicht von der Geheimhaltung dieses Keys.
 export const environment = {
   production: true,
+  // supabaseUrl: 'https://yodlmummujtdziggvwtd.supabase.co',
+  // supabaseAnonKey: 'sb_publishable_tPobYiI49RvZEG2dKWCtDQ_9iv_Hd5E',
   supabaseUrl: 'https://yodlmummujtdziggvwtd.supabase.co',
   supabaseAnonKey: 'sb_publishable_tPobYiI49RvZEG2dKWCtDQ_9iv_Hd5E',
 };
