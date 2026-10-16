@@ -1,0 +1,43 @@
+<div class="mx-auto max-w-5xl">
+  <div class="flex items-center justify-between">
+    <div>
+      <a routerLink="/gutachten" class="link text-sm">← Gutachten-Übersicht</a>
+      @if (subjectName()) {
+        <h1 class="mt-1 text-xl font-semibold text-gray-800 dark:text-white">{{ subjectName() }}</h1>
+      }
+    </div>
+  </div>
+
+  <nav class="sticky top-16 z-10 -mx-4 mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-800 dark:bg-gray-950">
+    @for (group of sectionGroups; track $index) {
+      @if (!$first) {
+        <div class="hidden h-6 w-px bg-gray-300 dark:bg-gray-700 sm:block"></div>
+      }
+      <div class="flex flex-wrap gap-1.5">
+        @for (section of group; track section.path) {
+          <a
+            [routerLink]="[section.path]"
+            routerLinkActive
+            #rla="routerLinkActive"
+            [class]="
+              rla.isActive
+                ? 'inline-flex items-center gap-1.5 rounded-full bg-brand-500 px-3 py-1.5 text-xs font-medium text-white'
+                : 'inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-gray-600 shadow-sm transition hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800'
+            "
+          >
+            <span
+              class="h-1.5 w-1.5 shrink-0 rounded-full"
+              [class]="isDone(section.completionKey) ? (rla.isActive ? 'bg-white' : 'bg-success-500') : (rla.isActive ? 'bg-white/40' : 'bg-gray-300 dark:bg-gray-600')"
+              [attr.aria-label]="isDone(section.completionKey) ? 'ausgefüllt' : 'noch offen'"
+            ></span>
+            {{ section.label }}
+          </a>
+        }
+      </div>
+    }
+  </nav>
+
+  <div class="mt-6">
+    <router-outlet />
+  </div>
+</div>

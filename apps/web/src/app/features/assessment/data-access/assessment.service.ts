@@ -1,6 +1,26 @@
 import { inject, Injectable } from '@angular/core';
 import { SupabaseService } from '../../../core/supabase.service';
 
+/**
+ * supabase-js liefert bei einem nicht-2xx-Edge-Function-Aufruf nur eine
+ * generische FunctionsHttpError-Message ("Edge Function returned a non-2xx
+ * status code") -- die eigentliche, nutzbare Fehlermeldung steht im JSON-
+ * Body der Response (`{ error: "..." }`), der hier ausgelesen wird, damit
+ * z. B. "Modul 3 wurde noch nicht ausgefüllt." auch wirklich ankommt.
+ */
+async function toFriendlyError(error: unknown): Promise<Error> {
+  const context = (error as { context?: Response })?.context;
+  if (context && typeof context.json === 'function') {
+    try {
+      const body = await context.json();
+      if (body?.error) return new Error(body.error);
+    } catch {
+      // Body nicht als JSON lesbar -- auf die urspruengliche Fehlermeldung zurueckfallen.
+    }
+  }
+  return error instanceof Error ? error : new Error('Unbekannter Fehler.');
+}
+
 export interface AssessmentResultRow {
   assessment_id: string;
   total_score: number;
@@ -183,7 +203,7 @@ export class AssessmentService {
     const { error } = await this.supabase.client.functions.invoke('calculate-pflegegrad', {
       body: { assessmentId },
     });
-    if (error) throw error;
+    if (error) throw await toFriendlyError(error);
   }
 
   /** Bestimmt, ob ein Assessment eine Selbsteinschätzung oder ein Gutachten ist -- steuert z. B. "Zurück"-Links. */
@@ -194,6 +214,43 @@ export class AssessmentService {
       .eq('id', assessmentId)
       .single();
     return (data?.['kind'] as 'self' | 'gutachten') ?? 'self';
+  }
+
+  /**
+   * Welche Abschnitte eines Gutachtens bereits Daten haben -- treibt die
+   * Fortschrittspunkte in der Reiterleiste. current_step reicht dafuer nicht
+   * mehr, seit frei zwischen Abschnitten gesprungen werden kann (der Kunde
+   * wollte das explizit, siehe gutachten-editor-shell).
+   */
+  async getCompletionMap(assessmentId: string): Promise<Record<string, boolean>> {
+    const [{ data: adminData }, { data: chapters }, { data: modules }, { data: result }] = await Promise.all([
+      this.supabase.client
+        .from('assessment_admin_data')
+        .select('assessment_id')
+        .eq('assessment_id', assessmentId)
+        .maybeSingle(),
+      this.supabase.client.from('assessment_chapters').select('chapter_key').eq('assessment_id', assessmentId),
+      this.supabase.client.from('assessment_modules').select('module_number').eq('assessment_id', assessmentId),
+      this.supabase.client
+        .from('assessment_results')
+        .select('assessment_id')
+        .eq('assessment_id', assessmentId)
+        .maybeSingle(),
+    ]);
+
+    const map: Record<string, boolean> = { stammdaten: Boolean(adminData), summary: Boolean(result) };
+    for (const c of chapters ?? []) map[c['chapter_key'] as string] = true;
+    for (const m of modules ?? []) map[`module${m['module_number']}`] = true;
+    return map;
+  }
+
+  async getSubjectName(assessmentId: string): Promise<string | null> {
+    const { data } = await this.supabase.client
+      .from('assessments')
+      .select('subject_name')
+      .eq('id', assessmentId)
+      .maybeSingle();
+    return (data?.['subject_name'] as string | null) ?? null;
   }
 
   async getResult(assessmentId: string): Promise<AssessmentResultRow | null> {
@@ -209,14 +266,14 @@ export class AssessmentService {
     const { error } = await this.supabase.client.functions.invoke('generate-guide', {
       body: { assessmentId },
     });
-    if (error) throw error;
+    if (error) throw await toFriendlyError(error);
   }
 
   async generateGutachtenPdf(assessmentId: string): Promise<void> {
     const { error } = await this.supabase.client.functions.invoke('generate-gutachten-pdf', {
       body: { assessmentId },
     });
-    if (error) throw error;
+    if (error) throw await toFriendlyError(error);
   }
 
   async getGuideReport(assessmentId: string): Promise<GuideReportRow | null> {

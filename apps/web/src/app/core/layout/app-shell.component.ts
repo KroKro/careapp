@@ -43,7 +43,10 @@ export class AppShellComponent {
   readonly gutachtenNavItem: NavItem = {
     label: 'Gutachten',
     path: '/gutachten',
-    icon: 'M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375h-1.5m0 12.75h7.5m-7.5 3h7.5m-9-6h.008v.008H6.75v-.008ZM6 20.25h12a2.25 2.25 0 0 0 2.25-2.25V6.621a1.125 1.125 0 0 0-.329-.796L16.12 1.92A1.125 1.125 0 0 0 15.321 1.5H6a2.25 2.25 0 0 0-2.25 2.25v14.25A2.25 2.25 0 0 0 6 20.25ZM9 12.75l2.25 2.25 4.5-4.5',
+    // Bewusst eine Lupe statt eines weiteren Dokument-Icons (wie bei
+    // "Dokumente") -- im Sidebar-Screenshot beim UX-Review waren beide
+    // Icons auf den ersten Blick nicht unterscheidbar.
+    icon: 'm21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z',
   };
 
   readonly adminNavItem: NavItem = {
