@@ -27,6 +27,7 @@ const MODULE_MAX: Record<string, number> = { m1: 10, m2: 15, m3: 15, m4: 40, m5:
 @Component({
   selector: 'app-result-page',
   standalone: true,
+  host: { class: 'block' },
   imports: [RouterLink],
   templateUrl: './result-page.component.html',
 })

@@ -13,6 +13,7 @@
       [scaleLabels]="scaleLabels"
       [form]="weightedForm"
       [explanations]="explanations"
+      [pointsMap]="weightedPointsMap"
     />
 
     <div [formGroup]="incontinenceForm" class="rounded-xl border border-gray-200 p-4 dark:border-gray-800">
@@ -41,6 +42,7 @@
                 >
                   <input type="radio" class="sr-only" formControlName="harnLevel" name="harnLevel" [value]="level" />
                   {{ scaleLabels[level] }}
+                  <span class="text-xs text-gray-400 dark:text-gray-500">({{ level }} {{ level === 1 ? 'Punkt' : 'Punkte' }})</span>
                 </label>
                 @if (explanations['4.4.11'].levels?.[level]) {
                   <button
@@ -93,6 +95,7 @@
                 >
                   <input type="radio" class="sr-only" formControlName="stuhlLevel" name="stuhlLevel" [value]="level" />
                   {{ scaleLabels[level] }}
+                  <span class="text-xs text-gray-400 dark:text-gray-500">({{ level }} {{ level === 1 ? 'Punkt' : 'Punkte' }})</span>
                 </label>
                 @if (explanations['4.4.12'].levels?.[level]) {
                   <button
@@ -124,9 +127,9 @@
       <div class="space-y-2">
         @for (
           option of [
-            { value: 0, label: 'Keine, nicht täglich oder nicht auf Dauer' },
-            { value: 1, label: 'Täglich, zusätzlich zu oraler Nahrung' },
-            { value: 2, label: 'Ausschließlich oder nahezu ausschließlich' },
+            { value: 0, label: 'Keine, nicht täglich oder nicht auf Dauer (0 Punkte)' },
+            { value: 1, label: 'Täglich, zusätzlich zu oraler Nahrung (6 Punkte)' },
+            { value: 2, label: 'Ausschließlich oder nahezu ausschließlich (3 Punkte)' },
           ];
           track option.value
         ) {
@@ -169,6 +172,13 @@
         }
       </div>
     </div>
+
+    <app-module-score-summary
+      [rawScore]="rawScore()"
+      [weightedScore]="weightedScore()"
+      [stepTable]="stepTable()"
+      [breakdown]="breakdown()"
+    />
 
     <div class="flex items-center justify-between pt-2">
       <button type="button" class="link text-sm" (click)="cancel()">Abbrechen</button>

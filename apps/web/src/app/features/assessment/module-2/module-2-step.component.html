@@ -14,6 +14,8 @@
       [explanations]="explanations"
     />
 
+    <app-module-score-summary [rawScore]="rawScore()" [weightedScore]="weightedScore()" [stepTable]="stepTable()" />
+
     <div class="flex items-center justify-between pt-2">
       <button type="button" class="link text-sm" (click)="cancel()">Abbrechen</button>
       <div class="flex items-center gap-3">

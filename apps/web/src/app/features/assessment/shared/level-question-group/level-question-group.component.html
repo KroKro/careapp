@@ -1,7 +1,12 @@
 <div [formGroup]="form" class="space-y-4">
   @for (question of questions; track question.id) {
     <div class="rounded-xl border border-gray-200 p-4 dark:border-gray-800">
-      <p class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ question.label }}</p>
+      <div class="flex items-center justify-between gap-2">
+        <p class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ question.label }}</p>
+        <span class="badge-neutral shrink-0">
+          {{ pointsMap(question.id, values()[question.id] ?? 0) }} {{ pointsMap(question.id, values()[question.id] ?? 0) === 1 ? 'Punkt' : 'Punkte' }}
+        </span>
+      </div>
       @if (explanations?.[question.id]?.definition) {
         <p class="mt-1 mb-3 text-xs text-gray-500 dark:text-gray-400">{{ explanations![question.id].definition }}</p>
       } @else {
@@ -37,6 +42,7 @@
                   }
                 </span>
                 {{ scaleLabels[level] }}
+                <span class="text-xs text-gray-400 dark:text-gray-500">({{ pointsMap(question.id, level) }} {{ pointsMap(question.id, level) === 1 ? 'Punkt' : 'Punkte' }})</span>
               </label>
 
               @if (explanations?.[question.id]?.levels?.[level]) {

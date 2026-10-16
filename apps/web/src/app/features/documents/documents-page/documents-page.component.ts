@@ -5,6 +5,7 @@ import { DocumentRow, DocumentsService, DocumentType } from '../data-access/docu
 @Component({
   selector: 'app-documents-page',
   standalone: true,
+  host: { class: 'block' },
   imports: [ReactiveFormsModule],
   templateUrl: './documents-page.component.html',
 })

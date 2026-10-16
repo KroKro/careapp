@@ -5,6 +5,7 @@ import { AccountService, DELETION_GRACE_PERIOD_DAYS, ProfileRow } from '../data-
 @Component({
   selector: 'app-account-page',
   standalone: true,
+  host: { class: 'block' },
   imports: [],
   templateUrl: './account-page.component.html',
 })

@@ -6,6 +6,7 @@ import { QuestionExplanation } from '../../question-explanations';
 @Component({
   selector: 'app-frequency-question-group',
   standalone: true,
+  host: { class: 'block' },
   imports: [ReactiveFormsModule],
   templateUrl: './frequency-question-group.component.html',
 })

@@ -6,6 +6,7 @@ import { WizardProgressComponent } from '../shared/wizard-progress/wizard-progre
 @Component({
   selector: 'app-summary',
   standalone: true,
+  host: { class: 'block' },
   imports: [RouterLink, WizardProgressComponent],
   templateUrl: './summary.component.html',
 })

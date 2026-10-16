@@ -62,6 +62,7 @@ export const HAUSHALT_QUESTIONS: LevelQuestionConfig[] = [
 @Component({
   selector: 'app-kapitel-6-step',
   standalone: true,
+  host: { class: 'block' },
   imports: [ReactiveFormsModule, RouterLink, LevelQuestionGroupComponent],
   templateUrl: './kapitel-6-step.component.html',
 })

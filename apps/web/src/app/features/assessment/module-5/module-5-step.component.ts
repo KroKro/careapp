@@ -1,6 +1,7 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { AssessmentService } from '../data-access/assessment.service';
 import {
   INDEPENDENCE_SCALE,
@@ -9,8 +10,10 @@ import {
   MODULE5_GROUP3_QUESTIONS,
 } from '../module-configs';
 import { QUESTION_EXPLANATIONS } from '../question-explanations';
+import { computeModule5GroupPoints, lookupStepValue, StepTableEntry } from '../scoring-preview';
 import { FrequencyQuestionGroupComponent } from '../shared/frequency-question-group/frequency-question-group.component';
 import { LevelQuestionGroupComponent } from '../shared/level-question-group/level-question-group.component';
+import { ModuleScoreSummaryComponent, ScoreBreakdownItem } from '../shared/module-score-summary/module-score-summary.component';
 import { WizardProgressComponent } from '../shared/wizard-progress/wizard-progress.component';
 
 function buildFrequencyGroup(fb: FormBuilder, ids: string[]) {
@@ -27,10 +30,17 @@ function buildFrequencyGroup(fb: FormBuilder, ids: string[]) {
 @Component({
   selector: 'app-module-5-step',
   standalone: true,
-  imports: [ReactiveFormsModule, FrequencyQuestionGroupComponent, LevelQuestionGroupComponent, WizardProgressComponent],
+  host: { class: 'block' },
+  imports: [
+    ReactiveFormsModule,
+    FrequencyQuestionGroupComponent,
+    LevelQuestionGroupComponent,
+    WizardProgressComponent,
+    ModuleScoreSummaryComponent,
+  ],
   templateUrl: './module-5-step.component.html',
 })
-export class Module5StepComponent implements OnInit {
+export class Module5StepComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly assessmentService = inject(AssessmentService);
   private readonly route = inject(ActivatedRoute);
@@ -53,16 +63,69 @@ export class Module5StepComponent implements OnInit {
   readonly group3Form = buildFrequencyGroup(this.fb, this.group3Questions.map((q) => q.id));
   readonly diaetForm = this.fb.group({ diaet: [0] });
 
+  // Modul 5 hat keine Einzelkriterien-Punkte, sondern pro Gruppe einen
+  // Schwellenwert-Punktbeitrag (siehe computeModule5GroupPoints) -- daher
+  // Live-Vorschau auf Gruppenebene statt pro Kriterium.
+  readonly group1Values = signal(this.group1Form.getRawValue());
+  readonly group2Values = signal(this.group2Form.getRawValue());
+  readonly group3Values = signal(this.group3Form.getRawValue());
+  readonly diaetValue = signal(this.diaetForm.getRawValue().diaet ?? 0);
+  readonly stepTable = signal<StepTableEntry[]>([]);
+  private readonly subscriptions = new Subscription();
+
+  readonly groupPoints = computed(() =>
+    computeModule5GroupPoints(
+      this.group1Values() as any,
+      this.group2Values() as any,
+      this.group3Values() as any,
+      (this.diaetValue() ?? 0) as any,
+    ),
+  );
+  readonly rawScore = computed(() => {
+    const p = this.groupPoints();
+    return p.group1 + p.group2 + p.group3 + p.diaet;
+  });
+  readonly weightedScore = computed(() => lookupStepValue(this.stepTable(), this.rawScore()));
+  readonly breakdown = computed((): ScoreBreakdownItem[] => {
+    const p = this.groupPoints();
+    return [
+      { label: 'Behandlungspflege', value: p.group1 },
+      { label: 'Versorgungsmaßnahmen', value: p.group2 },
+      { label: 'Arzt-/Therapiebesuche', value: p.group3 },
+      { label: 'Diät', value: p.diaet },
+    ];
+  });
+
   async ngOnInit() {
-    const existing = await this.assessmentService.getModuleAnswers(this.assessmentId, 5);
-    if (!existing) return;
-    const group1 = (existing['group1'] as Record<string, unknown>) ?? {};
-    const group2 = (existing['group2'] as Record<string, unknown>) ?? {};
-    const group3 = (existing['group3'] as Record<string, unknown>) ?? {};
-    this.group1Form.patchValue(group1 as any);
-    this.group2Form.patchValue(group2 as any);
-    this.group3Form.patchValue(group3 as any);
-    this.diaetForm.patchValue({ diaet: (existing['diaet'] as number) ?? 0 });
+    this.subscriptions.add(this.group1Form.valueChanges.subscribe(() => this.group1Values.set(this.group1Form.getRawValue())));
+    this.subscriptions.add(this.group2Form.valueChanges.subscribe(() => this.group2Values.set(this.group2Form.getRawValue())));
+    this.subscriptions.add(this.group3Form.valueChanges.subscribe(() => this.group3Values.set(this.group3Form.getRawValue())));
+    this.subscriptions.add(
+      this.diaetForm.valueChanges.subscribe(() => this.diaetValue.set(this.diaetForm.getRawValue().diaet ?? 0)),
+    );
+
+    const [existing, stepTables] = await Promise.all([
+      this.assessmentService.getModuleAnswers(this.assessmentId, 5),
+      this.assessmentService.getActiveStepTables(),
+    ]);
+    this.stepTable.set(stepTables['m5'] ?? []);
+    if (existing) {
+      const group1 = (existing['group1'] as Record<string, unknown>) ?? {};
+      const group2 = (existing['group2'] as Record<string, unknown>) ?? {};
+      const group3 = (existing['group3'] as Record<string, unknown>) ?? {};
+      this.group1Form.patchValue(group1 as any);
+      this.group2Form.patchValue(group2 as any);
+      this.group3Form.patchValue(group3 as any);
+      this.diaetForm.patchValue({ diaet: (existing['diaet'] as number) ?? 0 });
+    }
+    this.group1Values.set(this.group1Form.getRawValue());
+    this.group2Values.set(this.group2Form.getRawValue());
+    this.group3Values.set(this.group3Form.getRawValue());
+    this.diaetValue.set(this.diaetForm.getRawValue().diaet ?? 0);
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
   async submit() {

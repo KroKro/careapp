@@ -6,6 +6,7 @@ import { AssessmentListItem, AssessmentService } from '../../assessment/data-acc
 @Component({
   selector: 'app-gutachten-home',
   standalone: true,
+  host: { class: 'block' },
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './gutachten-home.component.html',
 })

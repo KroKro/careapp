@@ -45,6 +45,7 @@ export const ERLEDIGUNGSORTE = [
 @Component({
   selector: 'app-stammdaten-step',
   standalone: true,
+  host: { class: 'block' },
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './stammdaten-step.component.html',
 })

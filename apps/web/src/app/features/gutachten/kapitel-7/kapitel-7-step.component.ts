@@ -52,6 +52,7 @@ function createDomainGroup(fb: FormBuilder) {
 @Component({
   selector: 'app-kapitel-7-step',
   standalone: true,
+  host: { class: 'block' },
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './kapitel-7-step.component.html',
 })

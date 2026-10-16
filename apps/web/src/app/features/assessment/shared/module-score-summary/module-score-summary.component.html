@@ -1,0 +1,44 @@
+<div class="rounded-xl border border-brand-200 bg-brand-50/60 p-4 dark:border-brand-500/20 dark:bg-brand-500/5">
+  <p class="text-xs font-semibold tracking-wide text-brand-700 uppercase dark:text-brand-400">Punkteübersicht</p>
+
+  @if (breakdown.length > 0) {
+    <dl class="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-gray-600 sm:grid-cols-4 dark:text-gray-400">
+      @for (item of breakdown; track item.label) {
+        <div class="flex items-baseline justify-between gap-2 sm:block">
+          <dt>{{ item.label }}</dt>
+          <dd class="font-medium text-gray-800 dark:text-white">{{ item.value }} {{ item.value === 1 ? 'Punkt' : 'Punkte' }}</dd>
+        </div>
+      }
+    </dl>
+  }
+
+  <div class="mt-3 flex flex-wrap items-baseline gap-x-6 gap-y-1">
+    <p class="text-sm text-gray-700 dark:text-gray-300">
+      Rohsumme: <span class="font-semibold text-gray-800 dark:text-white">{{ rawScore }}</span>
+    </p>
+    <p class="text-sm text-gray-700 dark:text-gray-300">
+      Gewichteter Punktwert: <span class="text-base font-bold text-brand-700 dark:text-brand-400">{{ weightedScore }}</span>
+    </p>
+  </div>
+
+  @if (sortedTable.length > 0) {
+    <!-- Bewusst kein <table>: dessen Auto-Layout ignoriert max-width auf
+         Zeilenebene (Zeilenhintergrund wurde breiter als die Spalten) --
+         als Grid hat jede Zeile garantiert dieselbe, feste Breite. -->
+    <div class="mt-3 w-fit min-w-48 overflow-hidden rounded-lg border border-brand-200/70 dark:border-brand-500/20">
+      <div class="grid grid-cols-[1fr_auto] gap-x-4 bg-white/50 px-3 py-1.5 text-xs font-medium text-gray-500 dark:bg-white/5 dark:text-gray-400">
+        <span>Rohwert</span>
+        <span>Gewichteter Wert</span>
+      </div>
+      @for (entry of sortedTable; track entry.max) {
+        <div
+          class="grid grid-cols-[1fr_auto] gap-x-4 px-3 py-1 text-xs"
+          [class]="isActiveRow(entry) ? 'bg-brand-500 font-semibold text-white' : 'text-gray-600 dark:text-gray-400'"
+        >
+          <span>bis {{ entry.max }}</span>
+          <span class="text-right">{{ entry.value }}</span>
+        </div>
+      }
+    </div>
+  }
+</div>

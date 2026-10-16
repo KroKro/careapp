@@ -5,6 +5,7 @@ import { AssessmentListItem, AssessmentService } from '../data-access/assessment
 @Component({
   selector: 'app-assessment-home',
   standalone: true,
+  host: { class: 'block' },
   imports: [RouterLink],
   templateUrl: './assessment-home.component.html',
 })

@@ -159,6 +159,22 @@ export class AssessmentService {
     if (error) throw error;
   }
 
+  /**
+   * Stufentabellen des aktiven Scoring-Rulesets -- fuer die Live-Vorschau
+   * (Rohsumme/gewichteter Punktwert) waehrend des Ausfuellens. Dieselbe
+   * Tabelle, die calculate-pflegegrad serverseitig fuer das verbindliche
+   * Ergebnis verwendet; RLS erlaubt SELECT fuer alle authenticated Nutzer.
+   */
+  async getActiveStepTables(): Promise<Record<string, { max: number; value: number }[]>> {
+    const { data, error } = await this.supabase.client
+      .from('scoring_rulesets')
+      .select('step_tables')
+      .eq('is_active', true)
+      .single();
+    if (error) throw error;
+    return data.step_tables as Record<string, { max: number; value: number }[]>;
+  }
+
   async getModuleAnswers(
     assessmentId: string,
     moduleNumber: number,

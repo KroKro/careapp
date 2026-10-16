@@ -28,6 +28,7 @@ export const UNTERSTUETZUNG_NACHT = [
 @Component({
   selector: 'app-kapitel-1-step',
   standalone: true,
+  host: { class: 'block' },
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './kapitel-1-step.component.html',
 })

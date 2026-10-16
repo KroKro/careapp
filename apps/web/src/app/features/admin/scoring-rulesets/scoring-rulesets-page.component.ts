@@ -6,6 +6,7 @@ import { AdminService, ScoringRulesetRow } from '../data-access/admin.service';
 @Component({
   selector: 'app-scoring-rulesets-page',
   standalone: true,
+  host: { class: 'block' },
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './scoring-rulesets-page.component.html',
 })

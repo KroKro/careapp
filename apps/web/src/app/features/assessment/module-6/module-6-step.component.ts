@@ -1,19 +1,23 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { AssessmentService } from '../data-access/assessment.service';
 import { INDEPENDENCE_SCALE, MODULE6_QUESTIONS } from '../module-configs';
 import { QUESTION_EXPLANATIONS } from '../question-explanations';
+import { computeModule6Raw, lookupStepValue, StepTableEntry } from '../scoring-preview';
 import { LevelQuestionGroupComponent } from '../shared/level-question-group/level-question-group.component';
+import { ModuleScoreSummaryComponent } from '../shared/module-score-summary/module-score-summary.component';
 import { WizardProgressComponent } from '../shared/wizard-progress/wizard-progress.component';
 
 @Component({
   selector: 'app-module-6-step',
   standalone: true,
-  imports: [ReactiveFormsModule, LevelQuestionGroupComponent, WizardProgressComponent],
+  host: { class: 'block' },
+  imports: [ReactiveFormsModule, LevelQuestionGroupComponent, WizardProgressComponent, ModuleScoreSummaryComponent],
   templateUrl: './module-6-step.component.html',
 })
-export class Module6StepComponent implements OnInit {
+export class Module6StepComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly assessmentService = inject(AssessmentService);
   private readonly route = inject(ActivatedRoute);
@@ -30,9 +34,26 @@ export class Module6StepComponent implements OnInit {
     Object.fromEntries(this.questions.map((q) => [q.id, this.fb.control(0)])),
   );
 
+  readonly values = signal(this.form.getRawValue());
+  readonly stepTable = signal<StepTableEntry[]>([]);
+  readonly rawScore = computed(() => computeModule6Raw(this.values() as any));
+  readonly weightedScore = computed(() => lookupStepValue(this.stepTable(), this.rawScore()));
+  private subscription?: Subscription;
+
   async ngOnInit() {
-    const existing = await this.assessmentService.getModuleAnswers(this.assessmentId, 6);
+    this.subscription = this.form.valueChanges.subscribe(() => this.values.set(this.form.getRawValue()));
+
+    const [existing, stepTables] = await Promise.all([
+      this.assessmentService.getModuleAnswers(this.assessmentId, 6),
+      this.assessmentService.getActiveStepTables(),
+    ]);
     if (existing) this.form.patchValue(existing as any);
+    this.values.set(this.form.getRawValue());
+    this.stepTable.set(stepTables['m6'] ?? []);
+  }
+
+  ngOnDestroy() {
+    this.subscription?.unsubscribe();
   }
 
   async submit() {

@@ -6,6 +6,7 @@ import { AssessmentService } from '../../assessment/data-access/assessment.servi
 @Component({
   selector: 'app-kapitel-9-step',
   standalone: true,
+  host: { class: 'block' },
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './kapitel-9-step.component.html',
 })

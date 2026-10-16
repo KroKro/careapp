@@ -6,6 +6,7 @@ import { AuthService } from '../../../core/auth.service';
 @Component({
   selector: 'app-reset-password',
   standalone: true,
+  host: { class: 'block' },
   imports: [ReactiveFormsModule],
   templateUrl: './reset-password.component.html',
 })

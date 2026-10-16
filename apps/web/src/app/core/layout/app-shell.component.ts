@@ -12,6 +12,7 @@ interface NavItem {
 @Component({
   selector: 'app-shell',
   standalone: true,
+  host: { class: 'block' },
   imports: [RouterLink, RouterLinkActive, RouterOutlet],
   templateUrl: './app-shell.component.html',
 })

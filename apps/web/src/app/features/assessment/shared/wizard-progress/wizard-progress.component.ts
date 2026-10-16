@@ -3,6 +3,7 @@ import { Component, Input } from '@angular/core';
 @Component({
   selector: 'app-wizard-progress',
   standalone: true,
+  host: { class: 'block' },
   templateUrl: './wizard-progress.component.html',
 })
 export class WizardProgressComponent {

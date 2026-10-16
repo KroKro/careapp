@@ -13,6 +13,7 @@ type EntryKind = 'general' | 'module';
 @Component({
   selector: 'app-guide-templates-page',
   standalone: true,
+  host: { class: 'block' },
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './guide-templates-page.component.html',
 })

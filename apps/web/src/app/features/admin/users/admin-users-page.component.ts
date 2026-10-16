@@ -5,6 +5,7 @@ import { AdminService, AdminUserRow } from '../data-access/admin.service';
 @Component({
   selector: 'app-admin-users-page',
   standalone: true,
+  host: { class: 'block' },
   imports: [RouterLink],
   templateUrl: './admin-users-page.component.html',
 })

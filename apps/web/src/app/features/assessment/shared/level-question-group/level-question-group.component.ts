@@ -7,6 +7,7 @@ import { QuestionExplanation } from '../../question-explanations';
 @Component({
   selector: 'app-level-question-group',
   standalone: true,
+  host: { class: 'block' },
   imports: [ReactiveFormsModule],
   templateUrl: './level-question-group.component.html',
 })
@@ -15,6 +16,10 @@ export class LevelQuestionGroupComponent implements OnInit, OnDestroy {
   @Input({ required: true }) scaleLabels: string[] = [];
   @Input({ required: true }) form!: FormGroup;
   @Input() explanations?: Record<string, QuestionExplanation>;
+  // Standard: Stufe == Punktwert (0-3). Modul 3 (Haeufigkeit) hat eine
+  // abweichende Punktetabelle (0/1/3/5), Modul 4 unterschiedliche Gewichtungen
+  // je Kriterium (Essen x3, Trinken/Toilette x2) -- daher questionId-abhaengig.
+  @Input() pointsMap: (questionId: string, level: number) => number = (_id, level) => level;
 
   readonly levels = [0, 1, 2, 3];
   // Reaktive Forms loesen in Angulars Zoneless-Modus keine Change Detection

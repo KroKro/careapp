@@ -43,6 +43,7 @@ const SECTION_GROUPS: SectionTab[][] = [
 @Component({
   selector: 'app-gutachten-editor-shell',
   standalone: true,
+  host: { class: 'block' },
   imports: [RouterLink, RouterLinkActive, RouterOutlet],
   templateUrl: './gutachten-editor-shell.component.html',
 })
