@@ -24,6 +24,7 @@ export class Module2StepComponent implements OnInit {
   readonly explanations = QUESTION_EXPLANATIONS;
   readonly saving = signal(false);
   readonly assessmentId = this.route.snapshot.paramMap.get('assessmentId')!;
+  private readonly basePath = (this.route.snapshot.data['basePath'] as string) ?? '/assessment';
 
   readonly form = this.fb.group(
     Object.fromEntries(this.questions.map((q) => [q.id, this.fb.control(0)])),
@@ -38,17 +39,17 @@ export class Module2StepComponent implements OnInit {
     this.saving.set(true);
     try {
       await this.assessmentService.saveModuleAnswers(this.assessmentId, 2, this.form.getRawValue(), '3');
-      this.router.navigate(['/assessment', this.assessmentId, 'module', 3]);
+      this.router.navigate([this.basePath, this.assessmentId, 'module', 3]);
     } finally {
       this.saving.set(false);
     }
   }
 
   goBack() {
-    this.router.navigate(['/assessment', this.assessmentId, 'module', 1]);
+    this.router.navigate([this.basePath, this.assessmentId, 'module', 1]);
   }
 
   cancel() {
-    this.router.navigate(['/assessment']);
+    this.router.navigate([this.basePath]);
   }
 }

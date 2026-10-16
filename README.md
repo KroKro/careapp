@@ -27,6 +27,11 @@ BRi-Richtlinien-PDFs im selben Ordner.
 - `supabase/functions/generate-guide`: setzt aus `guide_templates` + Ergebnis einen
   regelbasierten Leitfaden zusammen (kein LLM) und rendert ihn serverseitig als PDF
   (`_shared/markdown-to-pdf.ts`) in den privaten Bucket `guides`.
+- `supabase/functions/generate-gutachten-pdf`: Pendant zu `generate-guide` für den
+  Gutachter-Profi-Modus (`/gutachten`) — rendert Stammdaten + alle Kapitel
+  (1,2,3,6,7,8,9) + das Modul-1–6-Pflegegrad-Ergebnis als PDF, über denselben
+  `guides`-Bucket und dieselbe `guide_reports`-Tabelle wie `generate-guide`
+  (identisches Zugriffsmuster, `generator_version='gutachten-v1'`).
 - `infra/av-scanner`: selbst betriebener ClamAV-Dienst (Docker Compose) + Deno-
   HTTP-Wrapper — bewusst kein Cloud-AV-API-Drittanbieter für Gesundheitsdokumente.
   Muss separat auf einer eigenen EU-VM deployt werden (siehe `infra/av-scanner/README.md`).
@@ -61,7 +66,7 @@ BRi-Richtlinien-PDFs im selben Ordner.
 4. Seed einspielen: Inhalt von `supabase/seed.sql` im SQL-Editor des Dashboards
    ausführen (oder `psql` gegen die Connection-String aus den Projekteinstellungen).
 5. Edge Functions deployen:
-   `supabase functions deploy calculate-pflegegrad scan-document generate-guide export-data admin-list-users purge-expired-accounts`.
+   `supabase functions deploy calculate-pflegegrad scan-document generate-guide generate-gutachten-pdf export-data admin-list-users purge-expired-accounts`.
 6. AV-Scanner gemäß `infra/av-scanner/README.md` auf einer eigenen EU-VM deployen,
    dann `supabase secrets set AV_SCANNER_URL=... AV_SCANNER_SECRET=...`.
 7. Secret für `purge-expired-accounts` setzen (beliebiger zufälliger String, z. B.

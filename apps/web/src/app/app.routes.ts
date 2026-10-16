@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth.guard';
-import { adminGuard } from './core/role.guard';
+import { adminGuard, gutachterGuard } from './core/role.guard';
 import { AppShellComponent } from './core/layout/app-shell.component';
 
 export const routes: Routes = [
@@ -63,6 +63,12 @@ export const routes: Routes = [
         path: 'admin',
         canActivate: [adminGuard],
         loadChildren: () => import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
+      },
+      {
+        path: 'gutachten',
+        canActivate: [gutachterGuard],
+        loadChildren: () =>
+          import('./features/gutachten/gutachten.routes').then((m) => m.GUTACHTEN_ROUTES),
       },
       { path: '', pathMatch: 'full', redirectTo: 'assessment' },
     ],

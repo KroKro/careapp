@@ -1,0 +1,27 @@
+<section class="mx-auto max-w-3xl">
+  <a routerLink="/gutachten" class="link text-sm">← Gutachten-Übersicht</a>
+  <h1 class="mt-2 text-2xl font-semibold text-gray-800 dark:text-white">Kapitel 2: Gutachterlicher Befund</h1>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="card mt-6 space-y-5">
+    <div>
+      <label class="label">Befund</label>
+      <textarea class="input" rows="12" formControlName="befund" placeholder="Körperlicher, psychischer und kognitiver Befund, Mobilität, relevante Beobachtungen während des Hausbesuchs…"></textarea>
+    </div>
+
+    <div class="flex items-center justify-between pt-2">
+      <a routerLink="/gutachten" class="link text-sm">Abbrechen</a>
+      <div class="flex items-center gap-3">
+        <button type="button" class="btn-secondary" (click)="goBack()">Zurück</button>
+        <button type="submit" class="btn-primary" [disabled]="saving()">
+          @if (saving()) {
+            <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+            </svg>
+          }
+          Weiter zu Kapitel 3
+        </button>
+      </div>
+    </div>
+  </form>
+</section>

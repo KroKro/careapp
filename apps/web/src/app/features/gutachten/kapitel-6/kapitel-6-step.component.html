@@ -1,0 +1,143 @@
+<section class="mx-auto max-w-3xl">
+  <a routerLink="/gutachten" class="link text-sm">← Gutachten-Übersicht</a>
+  <h1 class="mt-2 text-2xl font-semibold text-gray-800 dark:text-white">
+    Kapitel 6: Erhebung weiterer versorgungsrelevanter Informationen
+  </h1>
+  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+    Diese Kriterien fließen nicht in den Pflegegrad-Punktwert ein, dokumentieren aber
+    versorgungsrelevante Aspekte.
+  </p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="card mt-6 space-y-6">
+    <div>
+      <h2 class="mb-3 text-sm font-semibold text-gray-800 dark:text-white">6.1 Außerhäusliche Aktivitäten</h2>
+      <p class="mb-3 text-xs font-medium text-gray-600 dark:text-gray-300">Fortbewegung im außerhäuslichen Bereich</p>
+
+      <div class="space-y-4">
+        <div>
+          <label class="label">6.1.1 Verlassen des Bereichs der Wohnung oder der Einrichtung</label>
+          <select class="input" formControlName="verlassenWohnung">
+            <option value="">— bitte wählen —</option>
+            @for (o of verlassenOptionen; track o) {
+              <option [value]="o">{{ o }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="label">6.1.2 Fortbewegung außerhalb der Wohnung oder der Einrichtung</label>
+          <select class="input" formControlName="fortbewegungAusserhalb">
+            <option value="">— bitte wählen —</option>
+            @for (o of fortbewegungOptionen; track o) {
+              <option [value]="o">{{ o }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="label">6.1.3 Nutzung öffentlicher Verkehrsmittel im Nahverkehr</label>
+          <select class="input" formControlName="nutzungOepnv">
+            <option value="">— bitte wählen —</option>
+            @for (o of oepnvOptionen; track o) {
+              <option [value]="o">{{ o }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="label">6.1.4 Mitfahren in einem Kraftfahrzeug</label>
+          <select class="input" formControlName="mitfahrenKfz">
+            <option value="">— bitte wählen —</option>
+            @for (o of kfzOptionen; track o) {
+              <option [value]="o">{{ o }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="label">Erläuterung (6.1.1 bis 6.1.4)</label>
+          <textarea class="input" rows="2" formControlName="erlaeuterungMobilitaet"></textarea>
+        </div>
+      </div>
+
+      <p class="mt-5 mb-3 text-xs font-medium text-gray-600 dark:text-gray-300">
+        Teilnahme an Aktivitäten (ohne Berücksichtigung von Wegstrecken)
+      </p>
+      <div class="space-y-4">
+        <div>
+          <label class="label">6.1.5 Teilnahme an kulturellen, religiösen oder sportlichen Veranstaltungen</label>
+          <select class="input" formControlName="teilnahmeVeranstaltungen">
+            <option value="">— bitte wählen —</option>
+            @for (o of teilnahmeOptionen; track o) {
+              <option [value]="o">{{ o }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="label">Erläuterung(en)</label>
+          <textarea class="input" rows="2" formControlName="erlaeuterungVeranstaltungen"></textarea>
+        </div>
+
+        <div>
+          <span class="label">6.1.6 Besuch eines Arbeitsplatzes, einer Werkstatt oder einer Tages-/Nachtbetreuung</span>
+          <div class="grid gap-2 sm:grid-cols-2">
+            @for (o of besuchArbeitsplatzOptionen; track o) {
+              <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                <input
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
+                  [checked]="isArbeitsplatzChecked(o)"
+                  (change)="toggleArbeitsplatzOption(o, $any($event.target).checked)"
+                />
+                {{ o }}
+              </label>
+            }
+          </div>
+        </div>
+
+        <div>
+          <label class="label">6.1.7 Teilnahme an sonstigen Aktivitäten mit anderen Menschen</label>
+          <select class="input" formControlName="teilnahmeSonstigeAktivitaeten">
+            <option value="">— bitte wählen —</option>
+            @for (o of teilnahmeOptionen; track o) {
+              <option [value]="o">{{ o }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="label">Erläuterung(en)</label>
+          <textarea class="input" rows="2" formControlName="erlaeuterungSonstigeAktivitaeten"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-200 pt-6 dark:border-gray-800">
+      <h2 class="mb-1 text-sm font-semibold text-gray-800 dark:text-white">6.2 Haushaltsführung</h2>
+      <p class="mb-3 text-xs text-gray-500 dark:text-gray-400">
+        Bewertet wird, ob die Person die Aktivität praktisch durchführen kann — unabhängig davon,
+        ob Teilaspekte bereits in anderen Modulen bewertet wurden.
+      </p>
+      <app-level-question-group
+        [questions]="haushaltQuestions"
+        [scaleLabels]="scaleLabels"
+        [form]="haushaltForm"
+      />
+      <div class="mt-4">
+        <label class="label">Erläuterung(en)</label>
+        <textarea class="input" rows="2" formControlName="erlaeuterungHaushalt"></textarea>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between pt-2">
+      <a routerLink="/gutachten" class="link text-sm">Abbrechen</a>
+      <div class="flex items-center gap-3">
+        <button type="button" class="btn-secondary" (click)="goBack()">Zurück</button>
+        <button type="submit" class="btn-primary" [disabled]="saving()">
+          @if (saving()) {
+            <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+            </svg>
+          }
+          Weiter zu Kapitel 7
+        </button>
+      </div>
+    </div>
+  </form>
+</section>

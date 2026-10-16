@@ -21,6 +21,16 @@ export interface AssessmentListItem {
   created_at: string;
   updated_at: string;
   pflegegrad: number | null;
+  subject_name: string | null;
+}
+
+export interface AssessmentAdminData {
+  antragsart: string | null;
+  erledigungsart: string | null;
+  erledigungsort: string | null;
+  antragsdatum: string | null;
+  bisheriger_pflegegrad: number | null;
+  data: Record<string, unknown>;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -32,15 +42,16 @@ export class AssessmentService {
    * Ein Account kann mehrere parallele Einschätzungen haben -- z. B. weil
    * jemand sie für mehrere pflegebedürftige Angehörige ausfüllt.
    */
-  async listAssessments(): Promise<AssessmentListItem[]> {
+  async listAssessments(kind: 'self' | 'gutachten' = 'self'): Promise<AssessmentListItem[]> {
     const { data: userData } = await this.supabase.client.auth.getUser();
     const userId = userData.user?.id;
     if (!userId) return [];
 
     const { data, error } = await this.supabase.client
       .from('assessments')
-      .select('id, status, current_step, created_at, updated_at, assessment_results(pflegegrad)')
+      .select('id, status, current_step, created_at, updated_at, subject_name, assessment_results(pflegegrad)')
       .eq('user_id', userId)
+      .eq('kind', kind)
       .order('updated_at', { ascending: false });
     if (error) throw error;
 
@@ -54,24 +65,78 @@ export class AssessmentService {
         created_at: row['created_at'] as string,
         updated_at: row['updated_at'] as string,
         pflegegrad,
+        subject_name: (row['subject_name'] as string | null) ?? null,
       };
     });
   }
 
-  /** Legt immer eine neue, leere Einschätzung an (auch wenn bereits andere existieren). */
-  async createNewAssessment(): Promise<string> {
+  /** Legt immer eine neue, leere Einschätzung/ein neues Gutachten an (auch wenn bereits andere existieren). */
+  async createNewAssessment(options?: {
+    kind?: 'self' | 'gutachten';
+    subjectName?: string;
+    subjectBirthdate?: string;
+  }): Promise<string> {
     const { data: userData } = await this.supabase.client.auth.getUser();
     const userId = userData.user?.id;
     if (!userId) throw new Error('Nicht angemeldet.');
 
     const { data: created, error } = await this.supabase.client
       .from('assessments')
-      .insert({ user_id: userId, current_step: '1' })
+      .insert({
+        user_id: userId,
+        current_step: options?.kind === 'gutachten' ? 'stammdaten' : '1',
+        kind: options?.kind ?? 'self',
+        subject_name: options?.subjectName ?? null,
+        subject_birthdate: options?.subjectBirthdate ?? null,
+      })
       .select('id')
       .single();
 
     if (error) throw error;
     return created.id as string;
+  }
+
+  async getAdminData(assessmentId: string): Promise<AssessmentAdminData | null> {
+    const { data } = await this.supabase.client
+      .from('assessment_admin_data')
+      .select('antragsart, erledigungsart, erledigungsort, antragsdatum, bisheriger_pflegegrad, data')
+      .eq('assessment_id', assessmentId)
+      .maybeSingle();
+    return (data as AssessmentAdminData) ?? null;
+  }
+
+  async saveAdminData(assessmentId: string, adminData: AssessmentAdminData): Promise<void> {
+    const { error } = await this.supabase.client
+      .from('assessment_admin_data')
+      .upsert({ assessment_id: assessmentId, ...adminData }, { onConflict: 'assessment_id' });
+    if (error) throw error;
+  }
+
+  async getChapterAnswers(
+    assessmentId: string,
+    chapterKey: string,
+  ): Promise<Record<string, unknown> | null> {
+    const { data } = await this.supabase.client
+      .from('assessment_chapters')
+      .select('answers')
+      .eq('assessment_id', assessmentId)
+      .eq('chapter_key', chapterKey)
+      .maybeSingle();
+    return (data?.['answers'] as Record<string, unknown>) ?? null;
+  }
+
+  async saveChapterAnswers(
+    assessmentId: string,
+    chapterKey: string,
+    answers: Record<string, unknown>,
+  ): Promise<void> {
+    const { error } = await this.supabase.client
+      .from('assessment_chapters')
+      .upsert(
+        { assessment_id: assessmentId, chapter_key: chapterKey, answers },
+        { onConflict: 'assessment_id,chapter_key' },
+      );
+    if (error) throw error;
   }
 
   async getModuleAnswers(
@@ -106,11 +171,29 @@ export class AssessmentService {
     if (updateError) throw updateError;
   }
 
+  async setCurrentStep(assessmentId: string, step: string): Promise<void> {
+    const { error } = await this.supabase.client
+      .from('assessments')
+      .update({ current_step: step })
+      .eq('id', assessmentId);
+    if (error) throw error;
+  }
+
   async calculate(assessmentId: string): Promise<void> {
     const { error } = await this.supabase.client.functions.invoke('calculate-pflegegrad', {
       body: { assessmentId },
     });
     if (error) throw error;
+  }
+
+  /** Bestimmt, ob ein Assessment eine Selbsteinschätzung oder ein Gutachten ist -- steuert z. B. "Zurück"-Links. */
+  async getAssessmentKind(assessmentId: string): Promise<'self' | 'gutachten'> {
+    const { data } = await this.supabase.client
+      .from('assessments')
+      .select('kind')
+      .eq('id', assessmentId)
+      .single();
+    return (data?.['kind'] as 'self' | 'gutachten') ?? 'self';
   }
 
   async getResult(assessmentId: string): Promise<AssessmentResultRow | null> {
@@ -124,6 +207,13 @@ export class AssessmentService {
 
   async generateGuide(assessmentId: string): Promise<void> {
     const { error } = await this.supabase.client.functions.invoke('generate-guide', {
+      body: { assessmentId },
+    });
+    if (error) throw error;
+  }
+
+  async generateGutachtenPdf(assessmentId: string): Promise<void> {
+    const { error } = await this.supabase.client.functions.invoke('generate-gutachten-pdf', {
       body: { assessmentId },
     });
     if (error) throw error;

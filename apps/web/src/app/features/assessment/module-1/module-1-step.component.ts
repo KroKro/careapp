@@ -26,6 +26,7 @@ export class Module1StepComponent implements OnInit {
   readonly saving = signal(false);
   readonly showBedarfskonstellationDetail = signal(false);
   readonly assessmentId = this.route.snapshot.paramMap.get('assessmentId')!;
+  private readonly basePath = (this.route.snapshot.data['basePath'] as string) ?? '/assessment';
 
   readonly form = this.fb.group({
     '4.1.1': [0],
@@ -45,13 +46,13 @@ export class Module1StepComponent implements OnInit {
     this.saving.set(true);
     try {
       await this.assessmentService.saveModuleAnswers(this.assessmentId, 1, this.form.getRawValue(), '2');
-      this.router.navigate(['/assessment', this.assessmentId, 'module', 2]);
+      this.router.navigate([this.basePath, this.assessmentId, 'module', 2]);
     } finally {
       this.saving.set(false);
     }
   }
 
   cancel() {
-    this.router.navigate(['/assessment']);
+    this.router.navigate([this.basePath]);
   }
 }

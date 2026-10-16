@@ -11,7 +11,7 @@
     }
 
     <div class="flex items-center justify-between">
-      <a [routerLink]="['/assessment', assessmentId, 'module', 6]" class="btn-secondary">Zurück</a>
+      <a [routerLink]="[basePath, assessmentId, 'module', 6]" class="btn-secondary">Zurück</a>
       <button type="button" class="btn-primary" [disabled]="calculating()" (click)="calculate()">
         @if (calculating()) {
           <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -25,11 +25,11 @@
 
     <p class="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
       Einzelne Module nochmal ändern?
-      <a [routerLink]="['/assessment', assessmentId, 'module', 1]" class="link">Zurück zu Modul 1</a>
+      <a [routerLink]="[basePath, assessmentId, 'module', 1]" class="link">Zurück zu Modul 1</a>
     </p>
 
     <p class="mt-2 text-center">
-      <a [routerLink]="['/assessment']" class="link text-sm">Abbrechen</a>
+      <a [routerLink]="[basePath]" class="link text-sm">Abbrechen</a>
     </p>
   </div>
 </section>

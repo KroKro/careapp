@@ -1,0 +1,74 @@
+<div class="mx-auto max-w-3xl">
+  <div class="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold text-gray-800 dark:text-white">Gutachten</h1>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        Vollständiges Formulargutachten zur Feststellung der Pflegebedürftigkeit.
+      </p>
+    </div>
+    @if (!showCreateForm()) {
+      <button type="button" class="btn-primary shrink-0" (click)="showCreateForm.set(true)">Neues Gutachten</button>
+    }
+  </div>
+
+  @if (showCreateForm()) {
+    <div class="card mt-6">
+      <form [formGroup]="form" (ngSubmit)="create()" class="space-y-4">
+        <div>
+          <label class="label">Name der versicherten Person</label>
+          <input type="text" class="input" formControlName="subjectName" />
+          @if (form.controls.subjectName.invalid && form.controls.subjectName.touched) {
+            <p class="mt-1.5 text-xs text-error-500">Bitte gib den Namen der versicherten Person ein.</p>
+          }
+        </div>
+        <div>
+          <label class="label">Geburtsdatum (optional)</label>
+          <input type="date" class="input" formControlName="subjectBirthdate" />
+        </div>
+        <div class="flex gap-3">
+          <button type="submit" class="btn-primary" [disabled]="creating()">
+            @if (creating()) {
+              <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+              </svg>
+            }
+            Anlegen
+          </button>
+          <button type="button" class="btn-secondary" (click)="showCreateForm.set(false)">Abbrechen</button>
+        </div>
+      </form>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <p class="alert-error mt-4">{{ errorMessage() }}</p>
+  }
+
+  <div class="mt-6">
+    @if (loading()) {
+      <p class="text-sm text-gray-500 dark:text-gray-400">Lade…</p>
+    } @else if (gutachten().length === 0) {
+      <div class="card text-center">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Noch kein Gutachten angelegt</h2>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          Lege ein neues Gutachten an, um mit den Stammdaten zu beginnen.
+        </p>
+      </div>
+    } @else {
+      <ul class="space-y-3">
+        @for (g of gutachten(); track g.id) {
+          <li class="card flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-800 dark:text-white">{{ g.subject_name || 'Ohne Namen' }}</p>
+              <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                {{ statusLabel(g) }} · angelegt am {{ formatDate(g.created_at) }}
+              </p>
+            </div>
+            <a [routerLink]="linkFor(g)" class="btn-secondary shrink-0">Weiter bearbeiten</a>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</div>

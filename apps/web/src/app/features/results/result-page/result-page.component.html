@@ -40,23 +40,29 @@
     </div>
 
     <div class="card mt-6">
-      <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Persönlicher Leitfaden</h2>
+      <h2 class="text-lg font-semibold text-gray-800 dark:text-white">
+        {{ kind() === 'gutachten' ? 'Formulargutachten (PDF)' : 'Persönlicher Leitfaden' }}
+      </h2>
 
       @if (errorMessage()) {
         <p class="alert-error mt-3">{{ errorMessage() }}</p>
       }
 
       @if (!guide()) {
-        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Noch kein Leitfaden erstellt.</p>
+        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          {{ kind() === 'gutachten' ? 'Noch kein Gutachten-PDF erstellt.' : 'Noch kein Leitfaden erstellt.' }}
+        </p>
         <button type="button" class="btn-primary mt-4" [disabled]="generatingGuide()" (click)="generateGuide()">
-          Leitfaden erstellen
+          {{ kind() === 'gutachten' ? 'Gutachten-PDF erstellen' : 'Leitfaden erstellen' }}
         </button>
       } @else {
-        <div class="mt-3 whitespace-pre-wrap rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm leading-relaxed text-gray-700 dark:border-gray-800 dark:bg-gray-800/50 dark:text-gray-300">{{ guide()!.content_markdown }}</div>
+        @if (kind() === 'self') {
+          <div class="mt-3 whitespace-pre-wrap rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm leading-relaxed text-gray-700 dark:border-gray-800 dark:bg-gray-800/50 dark:text-gray-300">{{ guide()!.content_markdown }}</div>
+        }
         <div class="mt-4 flex flex-wrap gap-3">
           <button type="button" class="btn-primary" (click)="downloadPdf()">Als PDF herunterladen</button>
           <button type="button" class="btn-secondary" [disabled]="generatingGuide()" (click)="generateGuide()">
-            Leitfaden neu erstellen
+            {{ kind() === 'gutachten' ? 'Gutachten-PDF neu erstellen' : 'Leitfaden neu erstellen' }}
           </button>
         </div>
       }
@@ -64,6 +70,6 @@
   }
 
   <p class="mt-6">
-    <a routerLink="/assessment" class="link">Zurück zur Übersicht</a>
+    <a [routerLink]="basePath()" class="link">Zurück zur Übersicht</a>
   </p>
 </section>

@@ -38,6 +38,7 @@ export class Module4StepComponent implements OnInit, OnDestroy {
     this.openExplanation.set(this.openExplanation() === key ? null : key);
   }
   readonly assessmentId = this.route.snapshot.paramMap.get('assessmentId')!;
+  private readonly basePath = (this.route.snapshot.data['basePath'] as string) ?? '/assessment';
 
   readonly baseForm = this.fb.group(
     Object.fromEntries(this.baseQuestions.map((q) => [q.id, this.fb.control(0)])),
@@ -105,17 +106,17 @@ export class Module4StepComponent implements OnInit, OnDestroy {
         '4.4.12': incontinence.stuhlApplies ? incontinence.stuhlLevel : undefined,
       };
       await this.assessmentService.saveModuleAnswers(this.assessmentId, 4, answers, '5');
-      this.router.navigate(['/assessment', this.assessmentId, 'module', 5]);
+      this.router.navigate([this.basePath, this.assessmentId, 'module', 5]);
     } finally {
       this.saving.set(false);
     }
   }
 
   goBack() {
-    this.router.navigate(['/assessment', this.assessmentId, 'module', 3]);
+    this.router.navigate([this.basePath, this.assessmentId, 'module', 3]);
   }
 
   cancel() {
-    this.router.navigate(['/assessment']);
+    this.router.navigate([this.basePath]);
   }
 }

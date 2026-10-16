@@ -1,0 +1,133 @@
+<section class="mx-auto max-w-3xl">
+  <a routerLink="/gutachten" class="link text-sm">← Gutachten-Übersicht</a>
+  <h1 class="mt-2 text-2xl font-semibold text-gray-800 dark:text-white">
+    Kapitel 8: Weitere Empfehlungen und Hinweise für die Pflegekasse
+  </h1>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="card mt-6 space-y-6">
+    <div>
+      <div class="mb-2 flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-gray-800 dark:text-white">8.1 Hilfsmittel/Pflegehilfsmittel</h2>
+        <button type="button" class="btn-secondary px-3! py-1.5! text-xs" (click)="addHilfsmittel()">+ Hilfsmittel hinzufügen</button>
+      </div>
+      <div [formArrayName]="'hilfsmittel'" class="space-y-3">
+        @for (h of hilfsmittel.controls; track h; let i = $index) {
+          <div [formGroupName]="i" class="rounded-lg border border-gray-200 p-3 dark:border-gray-800">
+            <div class="grid gap-3 sm:grid-cols-2">
+              <input type="text" class="input" placeholder="Produktart" formControlName="produktart" />
+              <input type="text" class="input" placeholder="Produktnummer" formControlName="produktnummer" />
+            </div>
+            <textarea class="input mt-3" rows="2" placeholder="Erläuterung" formControlName="erlaeuterung"></textarea>
+            <div class="mt-2 flex items-center justify-between">
+              <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500" formControlName="zustimmungLiegtVor" />
+                Zustimmung zur Beantragung liegt vor
+              </label>
+              <button type="button" class="btn-ghost text-xs" (click)="removeHilfsmittel(i)">Entfernen</button>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="mt-3">
+        <label class="label">Weitere Empfehlungen</label>
+        <textarea class="input" rows="2" formControlName="hilfsmittelWeitereEmpfehlungen"></textarea>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-200 pt-6 dark:border-gray-800">
+      <h2 class="mb-3 text-sm font-semibold text-gray-800 dark:text-white">8.2 Heilmittel oder andere therapeutische Maßnahmen</h2>
+      <label class="mb-3 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+        <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500" formControlName="heilmittelKeine" />
+        keine
+      </label>
+      <div class="grid gap-3 sm:grid-cols-2">
+        <div>
+          <label class="label">Physikalische Therapie</label>
+          <input type="text" class="input" formControlName="physikalischeTherapie" />
+        </div>
+        <div>
+          <label class="label">Ergotherapie</label>
+          <input type="text" class="input" formControlName="ergotherapie" />
+        </div>
+        <div>
+          <label class="label">Stimm-, Sprech- und Sprachtherapie</label>
+          <input type="text" class="input" formControlName="sprachtherapie" />
+        </div>
+        <div>
+          <label class="label">Podologie</label>
+          <input type="text" class="input" formControlName="podologie" />
+        </div>
+      </div>
+      <div class="mt-3">
+        <label class="label">Andere therapeutische Maßnahmen</label>
+        <textarea class="input" rows="2" formControlName="andereTherapeutischeMassnahmen"></textarea>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-200 pt-6 dark:border-gray-800">
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="label">8.3 Wohnumfeldverbessernde Maßnahmen</label>
+          <textarea class="input" rows="2" formControlName="wohnumfeldMassnahmen"></textarea>
+        </div>
+        <div>
+          <label class="label">8.4 Edukative Maßnahmen/Beratung/Anleitung</label>
+          <textarea class="input" rows="2" formControlName="edukativeMassnahmen"></textarea>
+        </div>
+        <div>
+          <label class="label">8.5 Präventive Maßnahmen</label>
+          <textarea class="input" rows="2" formControlName="praeventiveMassnahmen"></textarea>
+        </div>
+        <div>
+          <label class="label">8.6 Beratung zu Primärprävention (§ 20 SGB V)</label>
+          <textarea class="input" rows="2" formControlName="primaerpraevention"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-200 pt-6 dark:border-gray-800">
+      <h2 class="mb-3 text-sm font-semibold text-gray-800 dark:text-white">8.7 Veränderung der Pflegesituation</h2>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="label">Pflegeberatung</label>
+          <textarea class="input" rows="2" formControlName="pflegeberatung"></textarea>
+        </div>
+        <div>
+          <label class="label">Entlastung der Pflegeperson</label>
+          <textarea class="input" rows="2" formControlName="entlastungPflegeperson"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-200 pt-6 dark:border-gray-800 space-y-3">
+      <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+        <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500" formControlName="beratungRehaErforderlich" />
+        8.8 Beratung zur Umsetzung der empfohlenen Reha-Leistung erforderlich
+      </label>
+      <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+        <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500" formControlName="widerspruchUebersendung" />
+        8.9 Die antragstellende Person widerspricht der Übersendung des Gutachtens
+      </label>
+      <div>
+        <label class="label">8.10 Sonstige Hinweise</label>
+        <textarea class="input" rows="2" formControlName="sonstigeHinweise"></textarea>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between pt-2">
+      <a routerLink="/gutachten" class="link text-sm">Abbrechen</a>
+      <div class="flex items-center gap-3">
+        <button type="button" class="btn-secondary" (click)="goBack()">Zurück</button>
+        <button type="submit" class="btn-primary" [disabled]="saving()">
+          @if (saving()) {
+            <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+            </svg>
+          }
+          Weiter zu Kapitel 9
+        </button>
+      </div>
+    </div>
+  </form>
+</section>

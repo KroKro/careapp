@@ -1,0 +1,93 @@
+<section class="mx-auto max-w-3xl">
+  <a routerLink="/gutachten" class="link text-sm">← Gutachten-Übersicht</a>
+  <h1 class="mt-2 text-2xl font-semibold text-gray-800 dark:text-white">Verwaltungs-/Stammdaten</h1>
+  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+    Angaben zum Antrag, zur Pflegekasse und zur Gutachter:in.
+  </p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="card mt-6 space-y-5">
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div>
+        <label class="label">Anlass des Antrags/Auftrags</label>
+        <select class="input" formControlName="antragsart">
+          <option value="">— bitte wählen —</option>
+          @for (a of antragsarten; track a) {
+            <option [value]="a">{{ a }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="label">Art des Antrags/Gutachtenart</label>
+        <select class="input" formControlName="gutachtenart">
+          <option value="">— bitte wählen —</option>
+          @for (a of gutachtenarten; track a) {
+            <option [value]="a">{{ a }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="label">Antragsdatum</label>
+        <input type="date" class="input" formControlName="antragsdatum" />
+      </div>
+      <div>
+        <label class="label">Bisheriger Pflegegrad</label>
+        <select class="input" formControlName="bisherigerPflegegrad">
+          @for (pg of pflegegrade; track pg) {
+            <option [value]="pg">{{ pg === 0 ? 'Kein Pflegegrad' : 'Pflegegrad ' + pg }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="label">Erledigungsart</label>
+        <select class="input" formControlName="erledigungsart">
+          <option value="">— bitte wählen —</option>
+          @for (a of erledigungsarten; track a) {
+            <option [value]="a">{{ a }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="label">Erledigungsort</label>
+        <select class="input" formControlName="erledigungsort">
+          <option value="">— bitte wählen —</option>
+          @for (a of erledigungsorte; track a) {
+            <option [value]="a">{{ a }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-200 pt-5 dark:border-gray-800">
+      <h2 class="mb-3 text-sm font-semibold text-gray-800 dark:text-white">Pflegekasse (Auftraggeber)</h2>
+      <label class="label">Name</label>
+      <input type="text" class="input" formControlName="pflegekasseName" />
+    </div>
+
+    <div class="border-t border-gray-200 pt-5 dark:border-gray-800">
+      <h2 class="mb-3 text-sm font-semibold text-gray-800 dark:text-white">Gutachter:in</h2>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="label">Name</label>
+          <input type="text" class="input" formControlName="gutachterName" />
+        </div>
+        <div>
+          <label class="label">Berufsbezeichnung</label>
+          <input type="text" class="input" formControlName="gutachterBeruf" />
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between pt-2">
+      <a routerLink="/gutachten" class="link text-sm">Abbrechen</a>
+      <button type="submit" class="btn-primary" [disabled]="saving()">
+        @if (saving()) {
+          <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+          </svg>
+        }
+        Weiter zu Kapitel 1
+      </button>
+    </div>
+  </form>
+</section>

@@ -1,0 +1,248 @@
+<section class="mx-auto max-w-3xl">
+  <a routerLink="/gutachten" class="link text-sm">← Gutachten-Übersicht</a>
+  <h1 class="mt-2 text-2xl font-semibold text-gray-800 dark:text-white">
+    Kapitel 7: Empfehlungen zur Förderung/Rehabilitation
+  </h1>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="card mt-6 space-y-6">
+    <div>
+      <h2 class="mb-3 text-sm font-semibold text-gray-800 dark:text-white">
+        7.1 Möglichkeiten zur Förderung oder zum Erhalt der Selbständigkeit
+      </h2>
+
+      <div [formGroupName]="'domain1'" class="rounded-lg border border-gray-200 p-4 dark:border-gray-800">
+        <p class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+          7.1.1 Mobilität, Selbstversorgung und Haushaltsführung
+        </p>
+        <label class="mb-3 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+          <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500" formControlName="keine" />
+          keine Empfehlung
+        </label>
+        <div class="space-y-3">
+          <div>
+            <label class="label">Einleitung/Optimierung therapeutischer Maßnahmen</label>
+            <textarea class="input" rows="2" formControlName="therapeutisch"></textarea>
+          </div>
+          <div>
+            <label class="label">Optimierung der räumlichen Umgebung / Hilfsmitteleinsatz</label>
+            <textarea class="input" rows="2" formControlName="umgebungHilfsmittel"></textarea>
+          </div>
+          <div>
+            <label class="label">Präventive Maßnahmen</label>
+            <textarea class="input" rows="2" formControlName="praeventiv"></textarea>
+          </div>
+          <div>
+            <label class="label">Sonstige Empfehlungen</label>
+            <textarea class="input" rows="2" formControlName="sonstiges"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div [formGroupName]="'domain2'" class="mt-4 rounded-lg border border-gray-200 p-4 dark:border-gray-800">
+        <p class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+          7.1.2 Kognitive/kommunikative Fähigkeiten, Verhalten, Alltagsleben und soziale Kontakte
+        </p>
+        <label class="mb-3 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+          <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500" formControlName="keine" />
+          keine Empfehlung
+        </label>
+        <div class="space-y-3">
+          <div>
+            <label class="label">Einleitung/Optimierung therapeutischer Maßnahmen</label>
+            <textarea class="input" rows="2" formControlName="therapeutisch"></textarea>
+          </div>
+          <div>
+            <label class="label">Optimierung der räumlichen Umgebung / Hilfsmitteleinsatz</label>
+            <textarea class="input" rows="2" formControlName="umgebungHilfsmittel"></textarea>
+          </div>
+          <div>
+            <label class="label">Präventive Maßnahmen</label>
+            <textarea class="input" rows="2" formControlName="praeventiv"></textarea>
+          </div>
+          <div>
+            <label class="label">Sonstige Empfehlungen</label>
+            <textarea class="input" rows="2" formControlName="sonstiges"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div [formGroupName]="'domain3'" class="mt-4 rounded-lg border border-gray-200 p-4 dark:border-gray-800">
+        <p class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+          7.1.3 Bewältigung von und selbständiger Umgang mit krankheits-/therapiebedingten Anforderungen
+        </p>
+        <label class="mb-3 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+          <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500" formControlName="keine" />
+          keine Empfehlung
+        </label>
+        <div class="space-y-3">
+          <div>
+            <label class="label">Edukative Maßnahmen/Beratung</label>
+            <textarea class="input" rows="2" formControlName="therapeutisch"></textarea>
+          </div>
+          <div>
+            <label class="label">Einsatz/Anleitung im Umgang mit Hilfsmitteln</label>
+            <textarea class="input" rows="2" formControlName="umgebungHilfsmittel"></textarea>
+          </div>
+          <div>
+            <label class="label">Präventive Maßnahmen</label>
+            <textarea class="input" rows="2" formControlName="praeventiv"></textarea>
+          </div>
+          <div>
+            <label class="label">Sonstige Empfehlungen</label>
+            <textarea class="input" rows="2" formControlName="sonstiges"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-200 pt-6 dark:border-gray-800">
+      <h2 class="mb-3 text-sm font-semibold text-gray-800 dark:text-white">
+        7.2 Empfehlungen zu therapeutischen und/oder weiteren Einzelmaßnahmen
+      </h2>
+      <label class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
+        <input type="checkbox" class="mt-0.5 h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500" formControlName="leistungenAusreichend" />
+        Die aktuellen Leistungen der vertragsärztlichen Versorgung oder pflegerischen Maßnahmen und die
+        unter 7.1 genannten Maßnahmen erscheinen ausreichend und erfolgversprechend.
+      </label>
+
+      @if (!values().leistungenAusreichend) {
+        <div class="mt-4 space-y-2">
+          @for (e of empfehlungenOptionen; track e.key) {
+            <label class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
+              <input
+                type="checkbox"
+                class="mt-0.5 h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
+                [checked]="isListChecked('empfehlungen', e.key)"
+                (change)="toggleListValue('empfehlungen', e.key, $any($event.target).checked)"
+              />
+              <span><strong>{{ e.key }}</strong> — {{ e.text }}</span>
+            </label>
+          }
+          @if (isListChecked('empfehlungen', 'I')) {
+            <div class="ml-6">
+              <label class="label">weitere Abklärung, weil …</label>
+              <textarea class="input" rows="2" formControlName="empfehlungIWeil"></textarea>
+            </div>
+          }
+          @if (isListChecked('empfehlungen', 'J')) {
+            <div class="ml-6">
+              <label class="label">Sonstiges</label>
+              <textarea class="input" rows="2" formControlName="empfehlungJSonstiges"></textarea>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="border-t border-gray-200 pt-6 dark:border-gray-800">
+      <h2 class="mb-3 text-sm font-semibold text-gray-800 dark:text-white">7.3 Empfehlungen zur medizinischen Rehabilitation</h2>
+
+      <label class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
+        <input type="checkbox" class="mt-0.5 h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500" formControlName="rehaBeduerftigkeit" />
+        Rehabilitationsbedürftigkeit liegt vor (Beeinträchtigungen können durch eine med. Rehabilitation
+        abgewendet, vermindert oder deren Verschlimmerung verhütet werden).
+      </label>
+
+      @if (values().rehaBeduerftigkeit) {
+        <div class="mt-4 space-y-4 rounded-lg border border-gray-200 p-4 dark:border-gray-800">
+          <div>
+            <p class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">7.3.1 Rehabilitationsfähigkeit</p>
+            <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+              <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500" formControlName="rehaFaehigkeit" />
+              Mindestens zwei Therapieeinheiten pro Tag sind möglich
+            </label>
+            @if (!values().rehaFaehigkeit) {
+              <div class="mt-3 space-y-2">
+                <p class="text-xs text-gray-500 dark:text-gray-400">Ausschlussgründe:</p>
+                @for (g of rehaAusschlussgruende; track g) {
+                  <label class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
+                    <input
+                      type="checkbox"
+                      class="mt-0.5 h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
+                      [checked]="isListChecked('rehaAusschlussgruendeAusgewaehlt', g)"
+                      (change)="toggleListValue('rehaAusschlussgruendeAusgewaehlt', g, $any($event.target).checked)"
+                    />
+                    {{ g }}
+                  </label>
+                }
+                <div>
+                  <label class="label">Sonstige Gründe</label>
+                  <input type="text" class="input" formControlName="rehaSonstigeGruende" />
+                </div>
+              </div>
+            }
+          </div>
+
+          <div>
+            <label class="label">7.3.2 Rehabilitationsziele</label>
+            <textarea class="input" rows="3" formControlName="rehaZiele" placeholder="z. B. Verbesserung/Erhaltung von Gehfähigkeit, Transfer, Nahrungsaufnahme, Körperpflege, Kommunikation…"></textarea>
+          </div>
+
+          <div>
+            <p class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">7.3.3 Zuweisungsempfehlung</p>
+            <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+              <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500" formControlName="zuweisungGeriatrisch" />
+              geriatrische Rehabilitation
+            </label>
+            <div class="mt-2">
+              <label class="label">indikationsspezifische Rehabilitation (welche)</label>
+              <input type="text" class="input" formControlName="zuweisungIndikationsspezifisch" />
+            </div>
+
+            <div class="mt-3">
+              <label class="label">Durchführung</label>
+              <select class="input" formControlName="durchfuehrung">
+                <option value="">— bitte wählen —</option>
+                <option value="ambulant">ambulant</option>
+                <option value="stationaer">stationär</option>
+              </select>
+            </div>
+
+            @if (values().durchfuehrung === 'stationaer') {
+              <div class="mt-3 space-y-2">
+                <p class="text-xs text-gray-500 dark:text-gray-400">Begründung:</p>
+                @for (b of stationaerBegruendungOptionen; track b) {
+                  <label class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
+                    <input
+                      type="checkbox"
+                      class="mt-0.5 h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
+                      [checked]="isListChecked('stationaerBegruendungAusgewaehlt', b)"
+                      (change)="toggleListValue('stationaerBegruendungAusgewaehlt', b, $any($event.target).checked)"
+                    />
+                    {{ b }}
+                  </label>
+                }
+              </div>
+            }
+
+            <div class="mt-3">
+              <label class="label">Hinweise auf besondere Anforderungen an die Rehabilitationseinrichtung</label>
+              <textarea class="input" rows="2" formControlName="hinweiseEinrichtung"></textarea>
+            </div>
+
+            <label class="mt-3 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+              <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500" formControlName="beratungErforderlich" />
+              Beratung zur Umsetzung der empfohlenen Reha-Leistung erforderlich
+            </label>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="flex items-center justify-between pt-2">
+      <a routerLink="/gutachten" class="link text-sm">Abbrechen</a>
+      <div class="flex items-center gap-3">
+        <button type="button" class="btn-secondary" (click)="goBack()">Zurück</button>
+        <button type="submit" class="btn-primary" [disabled]="saving()">
+          @if (saving()) {
+            <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+            </svg>
+          }
+          Weiter zu Kapitel 8
+        </button>
+      </div>
+    </div>
+  </form>
+</section>

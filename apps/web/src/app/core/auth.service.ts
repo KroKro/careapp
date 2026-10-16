@@ -13,7 +13,7 @@ export class AuthService {
   private readonly supabase = inject(SupabaseService);
 
   readonly session = signal<Session | null>(null);
-  readonly role = signal<'user' | 'admin' | null>(null);
+  readonly role = signal<'user' | 'admin' | 'gutachter' | null>(null);
 
   constructor() {
     this.supabase.getSession().then((session) => {
@@ -33,7 +33,7 @@ export class AuthService {
       .select('role')
       .eq('id', userId)
       .single();
-    this.role.set((data?.['role'] as 'user' | 'admin') ?? 'user');
+    this.role.set((data?.['role'] as 'user' | 'admin' | 'gutachter') ?? 'user');
   }
 
   async signUp({ email, password, healthDataConsent }: SignUpParams) {

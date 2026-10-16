@@ -17,13 +17,21 @@ export class SummaryComponent {
   readonly calculating = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly assessmentId = this.route.snapshot.paramMap.get('assessmentId')!;
+  readonly basePath = (this.route.snapshot.data['basePath'] as string) ?? '/assessment';
 
   async calculate() {
     this.calculating.set(true);
     this.errorMessage.set(null);
     try {
       await this.assessmentService.calculate(this.assessmentId);
-      this.router.navigate(['/results', this.assessmentId]);
+      if (this.basePath === '/gutachten') {
+        // Bei einem Gutachten ist nach der Pflegegrad-Berechnung (Kap. 5)
+        // noch nicht Schluss -- es folgen noch die Kapitel 6-9.
+        await this.assessmentService.setCurrentStep(this.assessmentId, 'kap6');
+        this.router.navigate(['/gutachten', this.assessmentId, 'kap6']);
+      } else {
+        this.router.navigate(['/results', this.assessmentId]);
+      }
     } catch (err) {
       this.errorMessage.set(
         err instanceof Error ? err.message : 'Berechnung fehlgeschlagen. Bitte prüfe, ob alle Module ausgefüllt sind.',

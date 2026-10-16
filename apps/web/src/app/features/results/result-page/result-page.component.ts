@@ -35,6 +35,8 @@ export class ResultPageComponent implements OnInit {
   private readonly assessmentService = inject(AssessmentService);
 
   readonly assessmentId = this.route.snapshot.paramMap.get('assessmentId')!;
+  readonly kind = signal<'self' | 'gutachten'>('self');
+  readonly basePath = signal('/assessment');
   readonly result = signal<AssessmentResultRow | null>(null);
   readonly guide = signal<GuideReportRow | null>(null);
   readonly loading = signal(true);
@@ -52,6 +54,9 @@ export class ResultPageComponent implements OnInit {
   }
 
   async ngOnInit() {
+    const kind = await this.assessmentService.getAssessmentKind(this.assessmentId);
+    this.kind.set(kind);
+    this.basePath.set(kind === 'gutachten' ? '/gutachten' : '/assessment');
     this.result.set(await this.assessmentService.getResult(this.assessmentId));
     this.guide.set(await this.assessmentService.getGuideReport(this.assessmentId));
     this.loading.set(false);
@@ -61,10 +66,16 @@ export class ResultPageComponent implements OnInit {
     this.generatingGuide.set(true);
     this.errorMessage.set(null);
     try {
-      await this.assessmentService.generateGuide(this.assessmentId);
+      if (this.kind() === 'gutachten') {
+        await this.assessmentService.generateGutachtenPdf(this.assessmentId);
+      } else {
+        await this.assessmentService.generateGuide(this.assessmentId);
+      }
       this.guide.set(await this.assessmentService.getGuideReport(this.assessmentId));
     } catch (err) {
-      this.errorMessage.set(err instanceof Error ? err.message : 'Leitfaden konnte nicht erstellt werden.');
+      this.errorMessage.set(
+        err instanceof Error ? err.message : 'Dokument konnte nicht erstellt werden.',
+      );
     } finally {
       this.generatingGuide.set(false);
     }

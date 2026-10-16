@@ -46,6 +46,7 @@ export class Module5StepComponent implements OnInit {
   readonly explanations = QUESTION_EXPLANATIONS;
   readonly saving = signal(false);
   readonly assessmentId = this.route.snapshot.paramMap.get('assessmentId')!;
+  private readonly basePath = (this.route.snapshot.data['basePath'] as string) ?? '/assessment';
 
   readonly group1Form = buildFrequencyGroup(this.fb, this.group1Questions.map((q) => q.id));
   readonly group2Form = buildFrequencyGroup(this.fb, this.group2Questions.map((q) => q.id));
@@ -74,17 +75,17 @@ export class Module5StepComponent implements OnInit {
         diaet: this.diaetForm.getRawValue().diaet,
       };
       await this.assessmentService.saveModuleAnswers(this.assessmentId, 5, answers, '6');
-      this.router.navigate(['/assessment', this.assessmentId, 'module', 6]);
+      this.router.navigate([this.basePath, this.assessmentId, 'module', 6]);
     } finally {
       this.saving.set(false);
     }
   }
 
   goBack() {
-    this.router.navigate(['/assessment', this.assessmentId, 'module', 4]);
+    this.router.navigate([this.basePath, this.assessmentId, 'module', 4]);
   }
 
   cancel() {
-    this.router.navigate(['/assessment']);
+    this.router.navigate([this.basePath]);
   }
 }
