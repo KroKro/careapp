@@ -8,33 +8,52 @@
     </div>
   </div>
 
-  <nav class="sticky top-16 z-10 -mx-4 mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-800 dark:bg-gray-950">
-    @for (group of sectionGroups; track $index) {
-      @if (!$first) {
-        <div class="hidden h-6 w-px bg-gray-300 dark:bg-gray-700 sm:block"></div>
-      }
-      <div class="flex flex-wrap gap-1.5">
-        @for (section of group; track section.path) {
-          <a
-            [routerLink]="[section.path]"
-            routerLinkActive
-            #rla="routerLinkActive"
-            [class]="
-              rla.isActive
-                ? 'inline-flex items-center gap-1.5 rounded-full bg-brand-500 px-3 py-1.5 text-xs font-medium text-white'
-                : 'inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-gray-600 shadow-sm transition hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800'
-            "
+  <nav class="sticky top-16 z-10 -mx-4 mt-4 border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-800 dark:bg-gray-950">
+    <div class="flex flex-wrap gap-1.5" role="tablist" aria-label="Abschnitt wählen">
+      @for (group of sectionGroups; track group.label; let i = $index) {
+        <button
+          type="button"
+          role="tab"
+          [attr.aria-selected]="selectedGroupIndex() === i"
+          (click)="selectedGroupIndex.set(i)"
+          [class]="
+            selectedGroupIndex() === i
+              ? 'inline-flex items-center gap-2 rounded-lg bg-brand-500 px-3.5 py-2 text-sm font-semibold text-white'
+              : 'inline-flex items-center gap-2 rounded-lg bg-white px-3.5 py-2 text-sm font-medium text-gray-600 shadow-sm transition hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800'
+          "
+        >
+          {{ group.label }}
+          <span
+            class="rounded-full px-1.5 py-0.5 text-[11px] font-medium"
+            [class]="selectedGroupIndex() === i ? 'bg-white/20' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'"
           >
-            <span
-              class="h-1.5 w-1.5 shrink-0 rounded-full"
-              [class]="isDone(section.completionKey) ? (rla.isActive ? 'bg-white' : 'bg-success-500') : (rla.isActive ? 'bg-white/40' : 'bg-gray-300 dark:bg-gray-600')"
-              [attr.aria-label]="isDone(section.completionKey) ? 'ausgefüllt' : 'noch offen'"
-            ></span>
-            {{ section.label }}
-          </a>
-        }
-      </div>
-    }
+            {{ groupProgress(group) }}
+          </span>
+        </button>
+      }
+    </div>
+
+    <div class="mt-2.5 flex flex-wrap gap-1.5 border-t border-gray-200 pt-2.5 dark:border-gray-800">
+      @for (section of sectionGroups[selectedGroupIndex()].tabs; track section.path) {
+        <a
+          [routerLink]="[section.path]"
+          routerLinkActive
+          #rla="routerLinkActive"
+          [class]="
+            rla.isActive
+              ? 'inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1.5 text-xs font-medium text-brand-700 dark:bg-brand-500/15 dark:text-brand-400'
+              : 'inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-gray-600 shadow-sm transition hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800'
+          "
+        >
+          <span
+            class="h-1.5 w-1.5 shrink-0 rounded-full"
+            [class]="isDone(section.completionKey) ? 'bg-success-500' : 'bg-gray-300 dark:bg-gray-600'"
+            [attr.aria-label]="isDone(section.completionKey) ? 'ausgefüllt' : 'noch offen'"
+          ></span>
+          {{ section.label }}
+        </a>
+      }
+    </div>
   </nav>
 
   <div class="mt-6">
