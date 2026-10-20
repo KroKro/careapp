@@ -1,6 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { autosaveOnChange } from '../../assessment/autosave';
 import { AssessmentService } from '../../assessment/data-access/assessment.service';
 
 @Component({
@@ -10,7 +12,7 @@ import { AssessmentService } from '../../assessment/data-access/assessment.servi
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './kapitel-3-step.component.html',
 })
-export class Kapitel3StepComponent implements OnInit {
+export class Kapitel3StepComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly assessmentService = inject(AssessmentService);
   private readonly route = inject(ActivatedRoute);
@@ -43,6 +45,8 @@ export class Kapitel3StepComponent implements OnInit {
     this.diagnosen.removeAt(index);
   }
 
+  private readonly subscriptions = new Subscription();
+
   async ngOnInit() {
     const existing = (await this.assessmentService.getChapterAnswers(this.assessmentId, 'kap3')) as
       | Record<string, any>
@@ -53,6 +57,15 @@ export class Kapitel3StepComponent implements OnInit {
       this.diagnosen.push(this.createDiagnoseGroup(d));
     }
     if (this.diagnosen.length === 0) this.addDiagnose();
+    this.subscriptions.add(
+      autosaveOnChange(this.form.valueChanges, (v) =>
+        this.assessmentService.saveChapterAnswers(this.assessmentId, 'kap3', v),
+      ),
+    );
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
   async submit() {

@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { AssessmentService } from '../data-access/assessment.service';
 import { INDEPENDENCE_SCALE, MODULE6_QUESTIONS } from '../module-configs';
 import { QUESTION_EXPLANATIONS } from '../question-explanations';
+import { autosaveOnChange } from '../autosave';
 import { computeModule6Raw, lookupStepValue, StepTableEntry } from '../scoring-preview';
 import { LevelQuestionGroupComponent } from '../shared/level-question-group/level-question-group.component';
 import { ModuleScoreSummaryComponent } from '../shared/module-score-summary/module-score-summary.component';
@@ -38,10 +39,15 @@ export class Module6StepComponent implements OnInit, OnDestroy {
   readonly stepTable = signal<StepTableEntry[]>([]);
   readonly rawScore = computed(() => computeModule6Raw(this.values() as any));
   readonly weightedScore = computed(() => lookupStepValue(this.stepTable(), this.rawScore()));
-  private subscription?: Subscription;
+  private readonly subscriptions = new Subscription();
 
   async ngOnInit() {
-    this.subscription = this.form.valueChanges.subscribe(() => this.values.set(this.form.getRawValue()));
+    this.subscriptions.add(this.form.valueChanges.subscribe(() => this.values.set(this.form.getRawValue())));
+    this.subscriptions.add(
+      autosaveOnChange(this.form.valueChanges, (v) =>
+        this.assessmentService.autosaveModuleAnswers(this.assessmentId, 6, v),
+      ),
+    );
 
     const [existing, stepTables] = await Promise.all([
       this.assessmentService.getModuleAnswers(this.assessmentId, 6),
@@ -53,7 +59,7 @@ export class Module6StepComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscription?.unsubscribe();
+    this.subscriptions.unsubscribe();
   }
 
   async submit() {

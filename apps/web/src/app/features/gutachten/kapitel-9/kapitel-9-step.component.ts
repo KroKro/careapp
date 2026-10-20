@@ -1,6 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { autosaveOnChange } from '../../assessment/autosave';
 import { AssessmentService } from '../../assessment/data-access/assessment.service';
 
 @Component({
@@ -10,7 +12,7 @@ import { AssessmentService } from '../../assessment/data-access/assessment.servi
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './kapitel-9-step.component.html',
 })
-export class Kapitel9StepComponent implements OnInit {
+export class Kapitel9StepComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly assessmentService = inject(AssessmentService);
   private readonly route = inject(ActivatedRoute);
@@ -27,9 +29,20 @@ export class Kapitel9StepComponent implements OnInit {
     gutachterName3: [''],
   });
 
+  private readonly subscriptions = new Subscription();
+
   async ngOnInit() {
     const existing = await this.assessmentService.getChapterAnswers(this.assessmentId, 'kap9');
     if (existing) this.form.patchValue(existing as any);
+    this.subscriptions.add(
+      autosaveOnChange(this.form.valueChanges, (v) =>
+        this.assessmentService.saveChapterAnswers(this.assessmentId, 'kap9', v),
+      ),
+    );
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
   async submit() {

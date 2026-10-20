@@ -1,6 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { autosaveOnChange } from '../../assessment/autosave';
 import { AssessmentService } from '../../assessment/data-access/assessment.service';
 
 export const WOHNSITUATIONEN = [
@@ -32,7 +34,7 @@ export const UNTERSTUETZUNG_NACHT = [
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './kapitel-1-step.component.html',
 })
-export class Kapitel1StepComponent implements OnInit {
+export class Kapitel1StepComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly assessmentService = inject(AssessmentService);
   private readonly route = inject(ActivatedRoute);
@@ -81,29 +83,41 @@ export class Kapitel1StepComponent implements OnInit {
     this.pflegepersonen.removeAt(index);
   }
 
+  private readonly subscriptions = new Subscription();
+
   async ngOnInit() {
     const existing = (await this.assessmentService.getChapterAnswers(this.assessmentId, 'kap1')) as
       | Record<string, any>
       | null;
-    if (!existing) return;
-    this.form.patchValue({
-      fremdbefunde: existing['fremdbefunde'] ?? '',
-      anamnese: existing['anamnese'] ?? '',
-      rehaAntragGestellt: existing['rehaAntragGestellt'] ?? false,
-      hilfsmittel: existing['hilfsmittel'] ?? '',
-      wohnsituation: existing['wohnsituation'] ?? '',
-      wohnsituationLeistungserbringer: existing['wohnsituationLeistungserbringer'] ?? '',
-      pflegeDurchEinrichtung: existing['pflegeDurchEinrichtung'] ?? false,
-      pflegeeinrichtungLeistungserbringer: existing['pflegeeinrichtungLeistungserbringer'] ?? '',
-      versorgungssituationBeschreibung: existing['versorgungssituationBeschreibung'] ?? '',
-      praesenzTag: existing['praesenzTag'] ?? '',
-      unterstuetzungNacht: existing['unterstuetzungNacht'] ?? '',
-      wohnsituationBeschreibung: existing['wohnsituationBeschreibung'] ?? '',
-    });
-    const personen = (existing['pflegepersonen'] as Array<{ name?: string; geburtsdatum?: string; telefon?: string }>) ?? [];
-    for (const p of personen) {
-      this.pflegepersonen.push(this.createPflegepersonGroup(p));
+    if (existing) {
+      this.form.patchValue({
+        fremdbefunde: existing['fremdbefunde'] ?? '',
+        anamnese: existing['anamnese'] ?? '',
+        rehaAntragGestellt: existing['rehaAntragGestellt'] ?? false,
+        hilfsmittel: existing['hilfsmittel'] ?? '',
+        wohnsituation: existing['wohnsituation'] ?? '',
+        wohnsituationLeistungserbringer: existing['wohnsituationLeistungserbringer'] ?? '',
+        pflegeDurchEinrichtung: existing['pflegeDurchEinrichtung'] ?? false,
+        pflegeeinrichtungLeistungserbringer: existing['pflegeeinrichtungLeistungserbringer'] ?? '',
+        versorgungssituationBeschreibung: existing['versorgungssituationBeschreibung'] ?? '',
+        praesenzTag: existing['praesenzTag'] ?? '',
+        unterstuetzungNacht: existing['unterstuetzungNacht'] ?? '',
+        wohnsituationBeschreibung: existing['wohnsituationBeschreibung'] ?? '',
+      });
+      const personen = (existing['pflegepersonen'] as Array<{ name?: string; geburtsdatum?: string; telefon?: string }>) ?? [];
+      for (const p of personen) {
+        this.pflegepersonen.push(this.createPflegepersonGroup(p));
+      }
     }
+    this.subscriptions.add(
+      autosaveOnChange(this.form.valueChanges, (v) =>
+        this.assessmentService.saveChapterAnswers(this.assessmentId, 'kap1', v),
+      ),
+    );
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
   async submit() {

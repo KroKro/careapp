@@ -1,6 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { autosaveOnChange } from '../../assessment/autosave';
 import { AssessmentService } from '../../assessment/data-access/assessment.service';
 
 @Component({
@@ -10,7 +12,7 @@ import { AssessmentService } from '../../assessment/data-access/assessment.servi
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './kapitel-8-step.component.html',
 })
-export class Kapitel8StepComponent implements OnInit {
+export class Kapitel8StepComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly assessmentService = inject(AssessmentService);
   private readonly route = inject(ActivatedRoute);
@@ -69,12 +71,24 @@ export class Kapitel8StepComponent implements OnInit {
     const existing = (await this.assessmentService.getChapterAnswers(this.assessmentId, 'kap8')) as
       | Record<string, any>
       | null;
-    if (!existing) return;
-    this.form.patchValue(existing);
-    const items = (existing['hilfsmittel'] as Array<any>) ?? [];
-    for (const item of items) {
-      this.hilfsmittel.push(this.createHilfsmittelGroup(item));
+    if (existing) {
+      this.form.patchValue(existing);
+      const items = (existing['hilfsmittel'] as Array<any>) ?? [];
+      for (const item of items) {
+        this.hilfsmittel.push(this.createHilfsmittelGroup(item));
+      }
     }
+    this.subscriptions.add(
+      autosaveOnChange(this.form.valueChanges, (v) =>
+        this.assessmentService.saveChapterAnswers(this.assessmentId, 'kap8', v),
+      ),
+    );
+  }
+
+  private readonly subscriptions = new Subscription();
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
   async submit() {

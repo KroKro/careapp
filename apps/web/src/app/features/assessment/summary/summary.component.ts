@@ -25,14 +25,9 @@ export class SummaryComponent {
     this.errorMessage.set(null);
     try {
       await this.assessmentService.calculate(this.assessmentId);
-      if (this.basePath === '/gutachten') {
-        // Bei einem Gutachten ist nach der Pflegegrad-Berechnung (Kap. 5)
-        // noch nicht Schluss -- es folgen noch die Kapitel 6-9.
-        await this.assessmentService.setCurrentStep(this.assessmentId, 'kap6');
-        this.router.navigate(['/gutachten', this.assessmentId, 'kap6']);
-      } else {
-        this.router.navigate(['/results', this.assessmentId]);
-      }
+      // Ergebnis immer zuerst zeigen (auch bei Gutachten) -- die Result-Page
+      // bietet von dort aus "Module bearbeiten" und "Weiter zu Kapitel 6".
+      this.router.navigate(['/results', this.assessmentId]);
     } catch (err) {
       this.errorMessage.set(
         err instanceof Error ? err.message : 'Berechnung fehlgeschlagen. Bitte prüfe, ob alle Module ausgefüllt sind.',

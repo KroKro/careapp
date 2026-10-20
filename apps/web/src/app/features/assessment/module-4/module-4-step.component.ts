@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AssessmentService } from '../data-access/assessment.service';
+import { autosaveOnChange } from '../autosave';
 import { INDEPENDENCE_SCALE, MODULE4_BASE_QUESTIONS, MODULE4_WEIGHTED_QUESTIONS } from '../module-configs';
 import { QUESTION_EXPLANATIONS } from '../question-explanations';
 import {
@@ -149,24 +150,34 @@ export class Module4StepComponent implements OnInit, OnDestroy {
     this.weightedValues.set(this.weightedForm.getRawValue());
     this.incontinenceValues.set(this.incontinenceForm.getRawValue());
     this.parenteralValues.set(this.parenteralForm.getRawValue());
+
+    const autosave = () =>
+      this.assessmentService.autosaveModuleAnswers(this.assessmentId, 4, this.buildAnswers());
+    this.subscriptions.add(autosaveOnChange(this.baseForm.valueChanges, autosave));
+    this.subscriptions.add(autosaveOnChange(this.weightedForm.valueChanges, autosave));
+    this.subscriptions.add(autosaveOnChange(this.incontinenceForm.valueChanges, autosave));
+    this.subscriptions.add(autosaveOnChange(this.parenteralForm.valueChanges, autosave));
   }
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
   }
 
+  private buildAnswers() {
+    const incontinence = this.incontinenceForm.getRawValue();
+    return {
+      ...this.baseForm.getRawValue(),
+      ...this.weightedForm.getRawValue(),
+      ...this.parenteralForm.getRawValue(),
+      '4.4.11': incontinence.harnApplies ? incontinence.harnLevel : undefined,
+      '4.4.12': incontinence.stuhlApplies ? incontinence.stuhlLevel : undefined,
+    };
+  }
+
   async submit() {
     this.saving.set(true);
     try {
-      const incontinence = this.incontinenceForm.getRawValue();
-      const answers = {
-        ...this.baseForm.getRawValue(),
-        ...this.weightedForm.getRawValue(),
-        ...this.parenteralForm.getRawValue(),
-        '4.4.11': incontinence.harnApplies ? incontinence.harnLevel : undefined,
-        '4.4.12': incontinence.stuhlApplies ? incontinence.stuhlLevel : undefined,
-      };
-      await this.assessmentService.saveModuleAnswers(this.assessmentId, 4, answers, '5');
+      await this.assessmentService.saveModuleAnswers(this.assessmentId, 4, this.buildAnswers(), '5');
       this.router.navigate([this.basePath, this.assessmentId, 'module', 5]);
     } finally {
       this.saving.set(false);

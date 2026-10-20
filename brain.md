@@ -68,10 +68,29 @@ Flow: Gutachten anlegen → Stammdaten → Kap. 1 → Kap. 2 → Kap. 3 →
 Modul 1–6 (wiederverwendet) → Zusammenfassung/Berechnung → Kap. 6 → Kap. 7
 → Kap. 8 → Kap. 9 → Ergebnis-Seite mit PDF-Download.
 
+**Echter Praxistest durch den Auftraggeber (2026-10-20) — 8 gemeldete Punkte, alle behoben:**
+- [x] **Datenverlust beim Reiter-Wechsel** (Modul 5 zurückgesetzt, Diagnosen
+      nicht gespeichert): Ursache war fehlendes Autosave — Werte wurden nur
+      beim expliziten "Weiter"-Klick persistiert. Jetzt debounced Autosave
+      (`autosaveOnChange`, 800ms) in allen 14 Gutachten-Schritten + 6
+      wiederverwendeten Modul-Komponenten, über einen eigenen
+      `autosaveModuleAnswers()`-Service-Pfad, der (anders als
+      `saveModuleAnswers()`) `assessments.current_step` nicht mit anfasst.
+- [x] Nach Berechnung sprang es bei Gutachten direkt zu Kap. 6 statt das
+      Ergebnis zu zeigen → Ergebnis-Seite wird jetzt immer zuerst gezeigt,
+      mit neuen Buttons "Module bearbeiten" / "Weiter zu Kapitel 6".
+- [x] Nach "Weiter" landete die nächste Seite am unteren Scroll-Rand →
+      `withInMemoryScrolling({scrollPositionRestoration:'enabled'})`.
+- [x] Summenwerte (Gesamtpunktwert/Pflegegrad) werden jetzt zusätzlich unter
+      der Modul-Punkte-Übersicht wiederholt (Gewohnheit des Auftraggebers).
+- [x] Medikamente-Eingabe in Modul 5 ergänzt (Name/Dosierung/Häufigkeit,
+      Liste wie Pflegepersonen/Diagnosen) — fließt nicht in die
+      Punkteberechnung ein, reine Dokumentation fürs Handout/PDF.
+- [x] Schriftgröße für primär ältere Zielgruppe vergrößert — Root-Font-Size
+      global auf 112.5% (18px statt 16px), skaliert alle rem-basierten
+      Tailwind-Textgrößen proportional mit.
+
 **Noch zu tun:**
-- [ ] Echten End-to-End-Test im Browser fahren (ein `role='gutachter'`-
-      Testaccount anlegen — Rollenvergabe ist Service-Role-only, siehe
-      `supabase/migrations/20261016200000_gutachten_profi_modus.sql`).
 - [ ] `ng test` (Unit-Tests) existieren für die neuen Komponenten noch nicht.
 - [ ] Vereinfachungen gegenüber dem echten Formular bewusst in Kauf
       genommen (z. B. Kap. 7 auf 3 statt 6 Unterfelder je Domäne verdichtet,
@@ -96,7 +115,16 @@ Barrierefrei-Audit — siehe Backlog unten.
       schon vorbereitet, aber nichts gebaut.
 - [ ] **Formulare-Bibliothek**: Antrag auf Einstufung/Höherstufung,
       Widerspruchsschreiben (Pflegegrad + Hilfsmittel), Antrag auf
-      Hilfsmittel — als ausfüllbare/generierbare Vorlagen im Tool.
+      Hilfsmittel — als ausfüllbare/generierbare Vorlagen im Tool. Konkreter
+      Flow laut `documents/attachments/2026_10_20/
+      2026_10_19_Antrag_Einstufung_Höherstufung.docx` (Visio-Flowchart):
+      Login → Antrag auswählen → Einstufung/Höherstufung wählen → Angaben
+      prüfen (aus Registrierung vorausgefüllt) → online versenden oder
+      drucken/faxen.
+- [ ] **Optionaler Passkey-Login**: laut `documents/attachments/2026_10_20/
+      2026_10_19_Anmeldung_Registrierung_Online.docx` als Alternative zu
+      Benutzername+Passwort im Registrierungs-Flow gewünscht ("evtl.
+      Passkey"). Bestätigt sonst nur den bestehenden Auth-Flow 1:1.
 - [ ] **Interface-Erweiterungen**: ICD-10-Schlüssel-Lookup, Rote-Liste-
       Integration (Medikamenten-Datenbank), Sprachsteuerung.
 - [ ] **Barrierefrei-Audit**: formaler WCAG-2.1-AA-Check (bisher nur

@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { AssessmentService } from '../data-access/assessment.service';
 import { FREQUENCY_SCALE, MODULE3_QUESTIONS } from '../module-configs';
 import { QUESTION_EXPLANATIONS } from '../question-explanations';
+import { autosaveOnChange } from '../autosave';
 import { computeModule3Raw, FREQUENCY_POINTS, lookupStepValue, StepTableEntry } from '../scoring-preview';
 import { LevelQuestionGroupComponent } from '../shared/level-question-group/level-question-group.component';
 import { ModuleScoreSummaryComponent } from '../shared/module-score-summary/module-score-summary.component';
@@ -42,10 +43,15 @@ export class Module3StepComponent implements OnInit, OnDestroy {
   readonly stepTable = signal<StepTableEntry[]>([]);
   readonly rawScore = computed(() => computeModule3Raw(this.values() as any));
   readonly weightedScore = computed(() => lookupStepValue(this.stepTable(), this.rawScore()));
-  private subscription?: Subscription;
+  private readonly subscriptions = new Subscription();
 
   async ngOnInit() {
-    this.subscription = this.form.valueChanges.subscribe(() => this.values.set(this.form.getRawValue()));
+    this.subscriptions.add(this.form.valueChanges.subscribe(() => this.values.set(this.form.getRawValue())));
+    this.subscriptions.add(
+      autosaveOnChange(this.form.valueChanges, (v) =>
+        this.assessmentService.autosaveModuleAnswers(this.assessmentId, 3, v),
+      ),
+    );
 
     const [existing, stepTables] = await Promise.all([
       this.assessmentService.getModuleAnswers(this.assessmentId, 3),
@@ -57,7 +63,7 @@ export class Module3StepComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscription?.unsubscribe();
+    this.subscriptions.unsubscribe();
   }
 
   async submit() {

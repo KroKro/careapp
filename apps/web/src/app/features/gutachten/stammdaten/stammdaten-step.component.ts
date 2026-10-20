@@ -1,7 +1,9 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { AssessmentService } from '../../assessment/data-access/assessment.service';
+import { autosaveOnChange } from '../../assessment/autosave';
 
 export const ANTRAGSARTEN = [
   'Pflegegeld (§ 37 SGB XI)',
@@ -49,7 +51,7 @@ export const ERLEDIGUNGSORTE = [
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './stammdaten-step.component.html',
 })
-export class StammdatenStepComponent implements OnInit {
+export class StammdatenStepComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly assessmentService = inject(AssessmentService);
   private readonly route = inject(ActivatedRoute);
@@ -76,40 +78,56 @@ export class StammdatenStepComponent implements OnInit {
     gutachterBeruf: [''],
   });
 
+  private readonly subscriptions = new Subscription();
+
   async ngOnInit() {
     const existing = await this.assessmentService.getAdminData(this.assessmentId);
-    if (!existing) return;
-    const data = (existing.data ?? {}) as Record<string, string>;
-    this.form.patchValue({
-      antragsart: existing.antragsart ?? '',
-      antragsdatum: existing.antragsdatum ?? '',
-      bisherigerPflegegrad: existing.bisheriger_pflegegrad ?? 0,
-      erledigungsart: existing.erledigungsart ?? '',
-      erledigungsort: existing.erledigungsort ?? '',
-      gutachtenart: data['gutachtenart'] ?? '',
-      pflegekasseName: data['pflegekasseName'] ?? '',
-      gutachterName: data['gutachterName'] ?? '',
-      gutachterBeruf: data['gutachterBeruf'] ?? '',
-    });
+    if (existing) {
+      const data = (existing.data ?? {}) as Record<string, string>;
+      this.form.patchValue({
+        antragsart: existing.antragsart ?? '',
+        antragsdatum: existing.antragsdatum ?? '',
+        bisherigerPflegegrad: existing.bisheriger_pflegegrad ?? 0,
+        erledigungsart: existing.erledigungsart ?? '',
+        erledigungsort: existing.erledigungsort ?? '',
+        gutachtenart: data['gutachtenart'] ?? '',
+        pflegekasseName: data['pflegekasseName'] ?? '',
+        gutachterName: data['gutachterName'] ?? '',
+        gutachterBeruf: data['gutachterBeruf'] ?? '',
+      });
+    }
+    this.subscriptions.add(
+      autosaveOnChange(this.form.valueChanges, () =>
+        this.assessmentService.saveAdminData(this.assessmentId, this.buildAdminData()),
+      ),
+    );
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+  }
+
+  private buildAdminData() {
+    const v = this.form.getRawValue();
+    return {
+      antragsart: v.antragsart || null,
+      erledigungsart: v.erledigungsart || null,
+      erledigungsort: v.erledigungsort || null,
+      antragsdatum: v.antragsdatum || null,
+      bisheriger_pflegegrad: v.bisherigerPflegegrad ?? null,
+      data: {
+        gutachtenart: v.gutachtenart,
+        pflegekasseName: v.pflegekasseName,
+        gutachterName: v.gutachterName,
+        gutachterBeruf: v.gutachterBeruf,
+      },
+    };
   }
 
   async submit() {
     this.saving.set(true);
     try {
-      const v = this.form.getRawValue();
-      await this.assessmentService.saveAdminData(this.assessmentId, {
-        antragsart: v.antragsart || null,
-        erledigungsart: v.erledigungsart || null,
-        erledigungsort: v.erledigungsort || null,
-        antragsdatum: v.antragsdatum || null,
-        bisheriger_pflegegrad: v.bisherigerPflegegrad ?? null,
-        data: {
-          gutachtenart: v.gutachtenart,
-          pflegekasseName: v.pflegekasseName,
-          gutachterName: v.gutachterName,
-          gutachterBeruf: v.gutachterBeruf,
-        },
-      });
+      await this.assessmentService.saveAdminData(this.assessmentId, this.buildAdminData());
       await this.assessmentService.setCurrentStep(this.assessmentId, 'kap1');
       this.router.navigate(['/gutachten', this.assessmentId, 'kap1']);
     } finally {

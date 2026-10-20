@@ -37,7 +37,31 @@
           </div>
         }
       </div>
+
+      <div class="mt-5 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-t border-gray-200 pt-4 dark:border-gray-800">
+        <p class="text-sm text-gray-700 dark:text-gray-300">
+          Gesamtpunktwert: <span class="font-semibold text-gray-800 dark:text-white">{{ result()!.total_score }}</span> von 100
+        </p>
+        <p class="text-sm text-gray-700 dark:text-gray-300">
+          Pflegegrad: <span class="text-base font-bold text-brand-700 dark:text-brand-400">{{ result()!.pflegegrad }}</span>
+        </p>
+      </div>
     </div>
+
+    @if (kind() === 'gutachten') {
+      <div class="card mt-6 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Gutachten fortsetzen</h2>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Module oder Stammdaten nochmal ändern, oder mit Kapitel 6 weitermachen.
+          </p>
+        </div>
+        <div class="flex gap-3">
+          <a [routerLink]="['/gutachten', assessmentId, 'module', 1]" class="btn-secondary">Module bearbeiten</a>
+          <button type="button" class="btn-primary" (click)="continueToKap6()">Weiter zu Kapitel 6</button>
+        </div>
+      </div>
+    }
 
     <div class="card mt-6">
       <h2 class="text-lg font-semibold text-gray-800 dark:text-white">

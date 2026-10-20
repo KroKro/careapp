@@ -2,6 +2,7 @@ import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { autosaveOnChange } from '../../assessment/autosave';
 import { AssessmentService } from '../../assessment/data-access/assessment.service';
 
 export const REHA_AUSSCHLUSSGRUENDE = [
@@ -93,15 +94,20 @@ export class Kapitel7StepComponent implements OnInit, OnDestroy {
   // Zoneless Change Detection: Formwerte fuer bedingt angezeigte Abschnitte
   // werden gespiegelt, siehe level-question-group.component.ts.
   readonly values = signal(this.form.getRawValue());
-  private subscription?: Subscription;
+  private readonly subscriptions = new Subscription();
 
   ngOnInit() {
-    this.subscription = this.form.valueChanges.subscribe(() => this.values.set(this.form.getRawValue()));
+    this.subscriptions.add(this.form.valueChanges.subscribe(() => this.values.set(this.form.getRawValue())));
+    this.subscriptions.add(
+      autosaveOnChange(this.form.valueChanges, (v) =>
+        this.assessmentService.saveChapterAnswers(this.assessmentId, 'kap7', v),
+      ),
+    );
     this.loadExisting();
   }
 
   ngOnDestroy() {
-    this.subscription?.unsubscribe();
+    this.subscriptions.unsubscribe();
   }
 
   private async loadExisting() {

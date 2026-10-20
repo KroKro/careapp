@@ -207,6 +207,24 @@ export class AssessmentService {
     if (updateError) throw updateError;
   }
 
+  /**
+   * Wie saveModuleAnswers, aber OHNE current_step zu veraendern -- fuer
+   * Autosave im Hintergrund waehrend des Tippens/Auswaehlens. Ein Autosave
+   * darf "wo war ich zuletzt" nicht verfaelschen; current_step wird
+   * weiterhin ausschliesslich beim expliziten "Weiter"-Klick gesetzt.
+   */
+  async autosaveModuleAnswers(
+    assessmentId: string,
+    moduleNumber: number,
+    answers: Record<string, unknown>,
+  ): Promise<void> {
+    const { error } = await this.supabase.client.from('assessment_modules').upsert(
+      { assessment_id: assessmentId, module_number: moduleNumber, answers },
+      { onConflict: 'assessment_id,module_number' },
+    );
+    if (error) throw error;
+  }
+
   async setCurrentStep(assessmentId: string, step: string): Promise<void> {
     const { error } = await this.supabase.client
       .from('assessments')

@@ -1,6 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { autosaveOnChange } from '../../assessment/autosave';
 import { INDEPENDENCE_SCALE, LevelQuestionConfig } from '../../assessment/module-configs';
 import { AssessmentService } from '../../assessment/data-access/assessment.service';
 import { LevelQuestionGroupComponent } from '../../assessment/shared/level-question-group/level-question-group.component';
@@ -66,7 +68,7 @@ export const HAUSHALT_QUESTIONS: LevelQuestionConfig[] = [
   imports: [ReactiveFormsModule, RouterLink, LevelQuestionGroupComponent],
   templateUrl: './kapitel-6-step.component.html',
 })
-export class Kapitel6StepComponent implements OnInit {
+export class Kapitel6StepComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly assessmentService = inject(AssessmentService);
   private readonly route = inject(ActivatedRoute);
@@ -117,31 +119,45 @@ export class Kapitel6StepComponent implements OnInit {
     const existing = (await this.assessmentService.getChapterAnswers(this.assessmentId, 'kap6')) as
       | Record<string, any>
       | null;
-    if (!existing) return;
-    this.form.patchValue({
-      verlassenWohnung: existing['verlassenWohnung'] ?? '',
-      fortbewegungAusserhalb: existing['fortbewegungAusserhalb'] ?? '',
-      nutzungOepnv: existing['nutzungOepnv'] ?? '',
-      mitfahrenKfz: existing['mitfahrenKfz'] ?? '',
-      erlaeuterungMobilitaet: existing['erlaeuterungMobilitaet'] ?? '',
-      teilnahmeVeranstaltungen: existing['teilnahmeVeranstaltungen'] ?? '',
-      erlaeuterungVeranstaltungen: existing['erlaeuterungVeranstaltungen'] ?? '',
-      besuchArbeitsplatz: existing['besuchArbeitsplatz'] ?? [],
-      teilnahmeSonstigeAktivitaeten: existing['teilnahmeSonstigeAktivitaeten'] ?? '',
-      erlaeuterungSonstigeAktivitaeten: existing['erlaeuterungSonstigeAktivitaeten'] ?? '',
-      erlaeuterungHaushalt: existing['erlaeuterungHaushalt'] ?? '',
-    });
-    if (existing['haushalt']) this.haushaltForm.patchValue(existing['haushalt']);
+    if (existing) {
+      this.form.patchValue({
+        verlassenWohnung: existing['verlassenWohnung'] ?? '',
+        fortbewegungAusserhalb: existing['fortbewegungAusserhalb'] ?? '',
+        nutzungOepnv: existing['nutzungOepnv'] ?? '',
+        mitfahrenKfz: existing['mitfahrenKfz'] ?? '',
+        erlaeuterungMobilitaet: existing['erlaeuterungMobilitaet'] ?? '',
+        teilnahmeVeranstaltungen: existing['teilnahmeVeranstaltungen'] ?? '',
+        erlaeuterungVeranstaltungen: existing['erlaeuterungVeranstaltungen'] ?? '',
+        besuchArbeitsplatz: existing['besuchArbeitsplatz'] ?? [],
+        teilnahmeSonstigeAktivitaeten: existing['teilnahmeSonstigeAktivitaeten'] ?? '',
+        erlaeuterungSonstigeAktivitaeten: existing['erlaeuterungSonstigeAktivitaeten'] ?? '',
+        erlaeuterungHaushalt: existing['erlaeuterungHaushalt'] ?? '',
+      });
+      if (existing['haushalt']) this.haushaltForm.patchValue(existing['haushalt']);
+    }
+
+    this.subscriptions.add(autosaveOnChange(this.form.valueChanges, () => this.saveAnswers()));
+    this.subscriptions.add(autosaveOnChange(this.haushaltForm.valueChanges, () => this.saveAnswers()));
+  }
+
+  private readonly subscriptions = new Subscription();
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+  }
+
+  private saveAnswers(): Promise<void> {
+    const answers = {
+      ...this.form.getRawValue(),
+      haushalt: this.haushaltForm.getRawValue(),
+    };
+    return this.assessmentService.saveChapterAnswers(this.assessmentId, 'kap6', answers);
   }
 
   async submit() {
     this.saving.set(true);
     try {
-      const answers = {
-        ...this.form.getRawValue(),
-        haushalt: this.haushaltForm.getRawValue(),
-      };
-      await this.assessmentService.saveChapterAnswers(this.assessmentId, 'kap6', answers);
+      await this.saveAnswers();
       await this.assessmentService.setCurrentStep(this.assessmentId, 'kap7');
       this.router.navigate(['/gutachten', this.assessmentId, 'kap7']);
     } finally {

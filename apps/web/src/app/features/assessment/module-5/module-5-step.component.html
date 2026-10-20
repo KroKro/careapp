@@ -38,6 +38,28 @@
       />
     </div>
 
+    <div class="border-t border-gray-200 pt-6 dark:border-gray-800">
+      <div class="mb-3 flex items-center justify-between gap-2">
+        <h2 class="text-sm font-semibold text-gray-800 dark:text-white">Medikamente</h2>
+        <button type="button" class="btn-secondary px-3! py-1.5! text-xs" (click)="addMedikament()">+ Medikament hinzufügen</button>
+      </div>
+      <div [formGroup]="medikamenteForm">
+        <div formArrayName="medikamente" class="space-y-3">
+          @if (medikamente.controls.length === 0) {
+            <p class="text-sm text-gray-500 dark:text-gray-400">Keine Medikamente erfasst.</p>
+          }
+          @for (med of medikamente.controls; track med; let i = $index) {
+            <div [formGroupName]="i" class="grid gap-3 rounded-lg border border-gray-200 p-3 sm:grid-cols-4 dark:border-gray-800">
+              <input type="text" class="input" placeholder="Medikament" formControlName="name" />
+              <input type="text" class="input" placeholder="Dosierung" formControlName="dosierung" />
+              <input type="text" class="input" placeholder="Häufigkeit" formControlName="haeufigkeit" />
+              <button type="button" class="btn-ghost text-xs" (click)="removeMedikament(i)">Entfernen</button>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
     <app-module-score-summary
       [rawScore]="rawScore()"
       [weightedScore]="weightedScore()"

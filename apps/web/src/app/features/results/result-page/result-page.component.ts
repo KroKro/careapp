@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   AssessmentResultRow,
   AssessmentService,
@@ -33,6 +33,7 @@ const MODULE_MAX: Record<string, number> = { m1: 10, m2: 15, m3: 15, m4: 40, m5:
 })
 export class ResultPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly assessmentService = inject(AssessmentService);
 
   readonly assessmentId = this.route.snapshot.paramMap.get('assessmentId')!;
@@ -80,6 +81,11 @@ export class ResultPageComponent implements OnInit {
     } finally {
       this.generatingGuide.set(false);
     }
+  }
+
+  async continueToKap6() {
+    await this.assessmentService.setCurrentStep(this.assessmentId, 'kap6');
+    this.router.navigate(['/gutachten', this.assessmentId, 'kap6']);
   }
 
   async downloadPdf() {

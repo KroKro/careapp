@@ -1,8 +1,9 @@
 import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormArray, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AssessmentService } from '../data-access/assessment.service';
+import { autosaveOnChange } from '../autosave';
 import {
   INDEPENDENCE_SCALE,
   MODULE5_GROUP1_QUESTIONS,
@@ -63,6 +64,33 @@ export class Module5StepComponent implements OnInit, OnDestroy {
   readonly group3Form = buildFrequencyGroup(this.fb, this.group3Questions.map((q) => q.id));
   readonly diaetForm = this.fb.group({ diaet: [0] });
 
+  // Medikamente sind originär Teil von Modul 5 im Formulargutachten, fliessen
+  // aber nicht in die Pflegegrad-Punktzahl ein -- reine Dokumentation fuers
+  // Handout/PDF.
+  readonly medikamenteForm = this.fb.group({
+    medikamente: this.fb.array<ReturnType<typeof this.createMedikamentGroup>>([]),
+  });
+
+  private createMedikamentGroup(initial?: { name?: string; dosierung?: string; haeufigkeit?: string }) {
+    return this.fb.group({
+      name: [initial?.name ?? ''],
+      dosierung: [initial?.dosierung ?? ''],
+      haeufigkeit: [initial?.haeufigkeit ?? ''],
+    });
+  }
+
+  get medikamente(): FormArray {
+    return this.medikamenteForm.controls.medikamente;
+  }
+
+  addMedikament() {
+    this.medikamente.push(this.createMedikamentGroup());
+  }
+
+  removeMedikament(index: number) {
+    this.medikamente.removeAt(index);
+  }
+
   // Modul 5 hat keine Einzelkriterien-Punkte, sondern pro Gruppe einen
   // Schwellenwert-Punktbeitrag (siehe computeModule5GroupPoints) -- daher
   // Live-Vorschau auf Gruppenebene statt pro Kriterium.
@@ -117,27 +145,42 @@ export class Module5StepComponent implements OnInit, OnDestroy {
       this.group2Form.patchValue(group2 as any);
       this.group3Form.patchValue(group3 as any);
       this.diaetForm.patchValue({ diaet: (existing['diaet'] as number) ?? 0 });
+      const medikamente = (existing['medikamente'] as Array<{ name?: string; dosierung?: string; haeufigkeit?: string }>) ?? [];
+      for (const m of medikamente) {
+        this.medikamente.push(this.createMedikamentGroup(m));
+      }
     }
     this.group1Values.set(this.group1Form.getRawValue());
     this.group2Values.set(this.group2Form.getRawValue());
     this.group3Values.set(this.group3Form.getRawValue());
     this.diaetValue.set(this.diaetForm.getRawValue().diaet ?? 0);
+
+    const autosave = () => this.assessmentService.autosaveModuleAnswers(this.assessmentId, 5, this.buildAnswers());
+    this.subscriptions.add(autosaveOnChange(this.group1Form.valueChanges, autosave));
+    this.subscriptions.add(autosaveOnChange(this.group2Form.valueChanges, autosave));
+    this.subscriptions.add(autosaveOnChange(this.group3Form.valueChanges, autosave));
+    this.subscriptions.add(autosaveOnChange(this.diaetForm.valueChanges, autosave));
+    this.subscriptions.add(autosaveOnChange(this.medikamenteForm.valueChanges, autosave));
   }
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
   }
 
+  private buildAnswers() {
+    return {
+      group1: this.group1Form.getRawValue(),
+      group2: this.group2Form.getRawValue(),
+      group3: this.group3Form.getRawValue(),
+      diaet: this.diaetForm.getRawValue().diaet,
+      medikamente: this.medikamenteForm.getRawValue().medikamente,
+    };
+  }
+
   async submit() {
     this.saving.set(true);
     try {
-      const answers = {
-        group1: this.group1Form.getRawValue(),
-        group2: this.group2Form.getRawValue(),
-        group3: this.group3Form.getRawValue(),
-        diaet: this.diaetForm.getRawValue().diaet,
-      };
-      await this.assessmentService.saveModuleAnswers(this.assessmentId, 5, answers, '6');
+      await this.assessmentService.saveModuleAnswers(this.assessmentId, 5, this.buildAnswers(), '6');
       this.router.navigate([this.basePath, this.assessmentId, 'module', 6]);
     } finally {
       this.saving.set(false);

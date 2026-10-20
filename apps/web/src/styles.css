@@ -33,6 +33,11 @@
 @layer base {
   html {
     font-family: var(--font-sans);
+    /* Zielgruppe ist primär älter -- alle Tailwind text-*-Utilities sind
+       rem-basiert, daher skaliert eine groessere Root-Schriftgroesse die
+       gesamte App proportional mit (ohne jede Komponente einzeln anfassen
+       zu muessen). 112.5% = 18px statt 16px Basis. */
+    font-size: 112.5%;
   }
 
   body {
