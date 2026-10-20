@@ -32,7 +32,7 @@ export class ResetPasswordComponent {
     this.errorMessage.set(null);
     try {
       await this.auth.updatePassword(this.form.getRawValue().password!);
-      this.router.navigateByUrl('/assessment');
+      this.router.navigateByUrl('/');
     } catch (err) {
       this.errorMessage.set(err instanceof Error ? err.message : 'Zurücksetzen fehlgeschlagen.');
     } finally {

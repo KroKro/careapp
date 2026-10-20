@@ -12,10 +12,14 @@
     </div>
 
     <nav class="mt-2 space-y-1 px-4">
+      <p class="px-3 pt-2 pb-1 text-xs font-semibold tracking-wide text-gray-400 uppercase dark:text-gray-500">
+        Meine Pflege
+      </p>
       @for (item of navItems; track item.path) {
         <a
           [routerLink]="item.path"
           routerLinkActive
+          [routerLinkActiveOptions]="{ exact: item.path === '/' }"
           #rla="routerLinkActive"
           [class]="
             rla.isActive
@@ -30,6 +34,9 @@
         </a>
       }
       @if (auth.role() === 'gutachter' || auth.role() === 'admin') {
+        <p class="px-3 pt-4 pb-1 text-xs font-semibold tracking-wide text-gray-400 uppercase dark:text-gray-500">
+          Profi-Werkzeuge
+        </p>
         <a
           [routerLink]="gutachtenNavItem.path"
           routerLinkActive
@@ -47,6 +54,9 @@
         </a>
       }
       @if (auth.role() === 'admin') {
+        <p class="px-3 pt-4 pb-1 text-xs font-semibold tracking-wide text-gray-400 uppercase dark:text-gray-500">
+          Verwaltung
+        </p>
         <a
           [routerLink]="adminNavItem.path"
           routerLinkActive
@@ -70,8 +80,13 @@
     <header
       class="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-gray-200 bg-white px-4 dark:border-gray-800 dark:bg-gray-900 sm:px-6"
     >
-      <button type="button" class="text-gray-600 lg:hidden dark:text-gray-300" (click)="sidebarOpen.set(true)">
-        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <button
+        type="button"
+        class="text-gray-600 lg:hidden dark:text-gray-300"
+        (click)="sidebarOpen.set(true)"
+        aria-label="Menü öffnen"
+      >
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" />
         </svg>
       </button>
@@ -79,6 +94,17 @@
       <div class="flex-1"></div>
 
       <div class="flex items-center gap-3">
+        <button
+          type="button"
+          class="flex h-9 w-9 items-center justify-center rounded-lg text-sm font-semibold text-gray-500 transition hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+          [class]="plainLanguage.enabled() ? 'bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400' : ''"
+          (click)="plainLanguage.toggle()"
+          [attr.aria-pressed]="plainLanguage.enabled()"
+          aria-label="Verständliche Formulierungen (größere Schrift, mehr Abstand)"
+          title="Verständliche Formulierungen (größere Schrift, mehr Abstand)"
+        >
+          Aa
+        </button>
         <button
           type="button"
           class="flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 transition hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
@@ -104,6 +130,7 @@
           }
         </button>
 
+        <span class="badge-neutral hidden sm:inline-flex">{{ roleLabel() }}</span>
         <span class="hidden text-sm text-gray-600 sm:block dark:text-gray-300">{{ auth.session()?.user?.email }}</span>
 
         <button type="button" class="btn-secondary px-3! py-1.5! text-xs" (click)="signOut()">Abmelden</button>

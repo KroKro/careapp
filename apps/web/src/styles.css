@@ -43,6 +43,32 @@
   body {
     @apply bg-gray-50 text-gray-800 dark:bg-gray-950 dark:text-gray-200;
   }
+
+  /* "Verständliche Formulierungen"-Modus (PlainLanguageService): bewusst
+     nur typografische/Abstands-Anpassungen, keine automatische Textver-
+     einfachung -- die eigentlichen Begutachtungs-Kriterien sind aus der
+     BRi zitiert und duerfen inhaltlich nicht eigenmaechtig umformuliert
+     werden (siehe brain.md). Breiterer Zeilenabstand, mehr Abstand
+     zwischen Absaetzen/Formularfeldern und eine engere Textspalte machen
+     lange Texte nachweislich leichter lesbar, unabhaengig vom Wortlaut. */
+  html.plain-language {
+    font-size: 125%;
+  }
+
+  html.plain-language p,
+  html.plain-language li,
+  html.plain-language label {
+    line-height: 1.85;
+    letter-spacing: 0.01em;
+  }
+
+  html.plain-language .card {
+    @apply space-y-5;
+  }
+
+  html.plain-language p {
+    max-width: 65ch;
+  }
 }
 
 @layer components {

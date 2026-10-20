@@ -34,6 +34,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       {
+        path: '',
+        pathMatch: 'full',
+        loadComponent: () =>
+          import('./features/dashboard/dashboard-page/dashboard-page.component').then(
+            (m) => m.DashboardPageComponent,
+          ),
+      },
+      {
         path: 'assessment',
         loadChildren: () =>
           import('./features/assessment/assessment.routes').then((m) => m.ASSESSMENT_ROUTES),
@@ -53,6 +61,27 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'antraege',
+        loadChildren: () => import('./features/antrag/antrag.routes').then((m) => m.ANTRAG_ROUTES),
+      },
+      {
+        path: 'informationen',
+        loadComponent: () =>
+          import('./features/info/info-page/info-page.component').then((m) => m.InfoPageComponent),
+      },
+      {
+        path: 'downloads',
+        loadComponent: () =>
+          import('./features/downloads/downloads-page/downloads-page.component').then(
+            (m) => m.DownloadsPageComponent,
+          ),
+      },
+      {
+        path: 'widersprueche',
+        loadChildren: () =>
+          import('./features/widerspruch/widerspruch.routes').then((m) => m.WIDERSPRUCH_ROUTES),
+      },
+      {
         path: 'account',
         loadComponent: () =>
           import('./features/account/account-page/account-page.component').then(
@@ -70,7 +99,6 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/gutachten/gutachten.routes').then((m) => m.GUTACHTEN_ROUTES),
       },
-      { path: '', pathMatch: 'full', redirectTo: 'assessment' },
     ],
   },
   { path: '**', redirectTo: '' },

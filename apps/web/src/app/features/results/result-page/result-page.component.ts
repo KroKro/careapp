@@ -5,6 +5,7 @@ import {
   AssessmentService,
   GuideReportRow,
 } from '../../assessment/data-access/assessment.service';
+import { ReadAloudButtonComponent } from '../../../shared/read-aloud-button/read-aloud-button.component';
 
 interface ModuleScoreDisplay {
   key: string;
@@ -28,7 +29,7 @@ const MODULE_MAX: Record<string, number> = { m1: 10, m2: 15, m3: 15, m4: 40, m5:
   selector: 'app-result-page',
   standalone: true,
   host: { class: 'block' },
-  imports: [RouterLink],
+  imports: [RouterLink, ReadAloudButtonComponent],
   templateUrl: './result-page.component.html',
 })
 export class ResultPageComponent implements OnInit {

@@ -1,0 +1,66 @@
+<div class="mx-auto max-w-3xl">
+  <div class="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold text-gray-800 dark:text-white">Widersprüche</h1>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        Widerspruch gegen einen Pflegegrad- oder Hilfsmittel-Bescheid deiner Pflegekasse vorbereiten.
+      </p>
+    </div>
+    <div class="flex flex-wrap shrink-0 gap-2">
+      <button type="button" class="btn-primary" [disabled]="creating() !== null" (click)="create('pflegegrad')">
+        @if (creating() === 'pflegegrad') {
+          <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+          </svg>
+        }
+        Widerspruch Pflegegrad
+      </button>
+      <button type="button" class="btn-secondary" [disabled]="creating() !== null" (click)="create('hilfsmittel')">
+        @if (creating() === 'hilfsmittel') {
+          <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+          </svg>
+        }
+        Widerspruch Hilfsmittel
+      </button>
+    </div>
+  </div>
+
+  @if (errorMessage()) {
+    <p class="alert-error mt-4">{{ errorMessage() }}</p>
+  }
+
+  <div class="mt-6">
+    @if (loading()) {
+      <p class="text-sm text-gray-500 dark:text-gray-400">Lade…</p>
+    } @else if (letters().length === 0) {
+      <div class="card text-center">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Noch kein Widerspruch angelegt</h2>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          Lege oben einen neuen Widerspruch an, wenn du mit einem Bescheid nicht einverstanden bist.
+        </p>
+      </div>
+    } @else {
+      <ul class="space-y-3">
+        @for (l of letters(); track l.id) {
+          <li class="card flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-800 dark:text-white">
+                Widerspruch {{ label(l) }}{{ l.nachname ? ' – ' + l.vorname + ' ' + l.nachname : '' }}
+              </p>
+              <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                angelegt am {{ formatDate(l.created_at) }}
+                @if (l.pdf_storage_path) {
+                  · PDF erstellt
+                }
+              </p>
+            </div>
+            <a [routerLink]="['/widersprueche', l.id]" class="btn-secondary shrink-0">Weiter bearbeiten</a>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</div>

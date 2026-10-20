@@ -1,0 +1,56 @@
+<section class="mx-auto max-w-3xl">
+  <h1 class="text-2xl font-semibold text-gray-800 dark:text-white">Informationen</h1>
+  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+    Hintergrundwissen rund um Begutachtung und Hilfsmittel — unabhängig von einer konkreten Einschätzung.
+  </p>
+
+  <div id="begutachtungen" class="card mt-6">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Was ist eine Begutachtung?</h2>
+      <app-read-aloud-button targetId="begutachtungen-text" />
+    </div>
+    <div id="begutachtungen-text" class="mt-3 space-y-3 text-sm text-gray-600 dark:text-gray-300">
+      <p>
+        Den Pflegegrad (1 bis 5) stellt nicht dieses Tool fest, sondern der Medizinische Dienst (bei gesetzlich
+        Versicherten) bzw. MEDICPROOF (bei privat Versicherten) im Rahmen eines persönlichen Begutachtungstermins.
+      </p>
+      <p>
+        Bewertet werden sechs Bereiche ("Module"): Mobilität, kognitive und kommunikative Fähigkeiten, Verhaltens-
+        weisen und psychische Problemlagen, Selbstversorgung, Krankheits- und therapiebedingte Anforderungen sowie
+        die Gestaltung des Alltagslebens und soziale Kontakte. Jeder Bereich ergibt Punkte, die gewichtet zu einem
+        Gesamtpunktwert zusammengerechnet werden — daraus ergibt sich der Pflegegrad.
+      </p>
+      <p>
+        Unsere <a routerLink="/assessment" class="link">Selbsteinschätzung</a> nutzt exakt dieselben Kriterien, damit
+        du schon vor dem echten Termin eine realistische Einschätzung bekommst und gezielter vorbereitet bist.
+        Fachkräfte können darüber hinaus ein vollständiges
+        <a routerLink="/gutachten" class="link">Formulargutachten</a> erstellen.
+      </p>
+    </div>
+  </div>
+
+  <div id="hilfsmittel" class="card mt-6">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Hilfsmittel</h2>
+      <app-read-aloud-button targetId="hilfsmittel-text" />
+    </div>
+    <div id="hilfsmittel-text" class="mt-3 space-y-3 text-sm text-gray-600 dark:text-gray-300">
+      <p>
+        "Hilfsmittel" ist im deutschen Sozialrecht kein einheitlicher Begriff: Technische Hilfsmittel wie Rollstühle
+        oder Hörgeräte werden in der Regel über die <strong>Krankenkasse</strong> beantragt, während Pflegehilfsmittel
+        (z. B. Pflegebetten oder Verbrauchshilfsmittel wie Einmalhandschuhe) über die <strong>Pflegekasse</strong>
+        laufen. Welche Stelle zuständig ist und was im Einzelfall übernommen wird, hängt von der konkreten Situation
+        ab — im Zweifel hilft die Pflegeberatung deiner Pflegekasse weiter.
+      </p>
+      <p>
+        Einen Antrag auf ein Hilfsmittel kannst du mit diesem Tool vorbereiten:
+        <a routerLink="/antraege" class="link">Antrag auf Hilfsmittel</a>. Wurde ein Antrag abgelehnt, kannst du
+        außerdem einen <a routerLink="/widersprueche" class="link">Widerspruch</a> vorbereiten.
+      </p>
+    </div>
+  </div>
+
+  <p class="mt-6 text-xs text-gray-400 dark:text-gray-500">
+    Diese Informationen ersetzen keine individuelle Rechts- oder Pflegeberatung.
+  </p>
+</section>

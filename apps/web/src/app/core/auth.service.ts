@@ -15,16 +15,28 @@ export class AuthService {
   readonly session = signal<Session | null>(null);
   readonly role = signal<'user' | 'admin' | 'gutachter' | null>(null);
 
+  // loadRole() ist ein zweiter, unabhaengiger Request nach dem Session-Load --
+  // Components, die role() direkt beim Init lesen (z.B. DashboardPageComponent),
+  // koennen sonst race-bedingt noch null sehen. ensureRole() unten wartet auf
+  // genau diesen In-Flight-Request statt auf dem Signal-Rohwert zu raten.
+  private rolePromise: Promise<void> | null = null;
+
   constructor() {
     this.supabase.getSession().then((session) => {
       this.session.set(session);
-      if (session) this.loadRole(session.user.id);
+      if (session) this.rolePromise = this.loadRole(session.user.id);
     });
     this.supabase.onAuthStateChange((session) => {
       this.session.set(session);
-      if (session) this.loadRole(session.user.id);
+      if (session) this.rolePromise = this.loadRole(session.user.id);
       else this.role.set(null);
     });
+  }
+
+  /** Garantiert, dass role() geladen ist, bevor der Wert gelesen wird. */
+  async ensureRole(): Promise<'user' | 'admin' | 'gutachter' | null> {
+    if (this.rolePromise) await this.rolePromise;
+    return this.role();
   }
 
   private async loadRole(userId: string) {

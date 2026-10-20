@@ -34,7 +34,7 @@ export class LoginComponent {
     const { email, password } = this.form.getRawValue();
     try {
       await this.auth.signIn(email!, password!);
-      this.router.navigateByUrl('/assessment');
+      this.router.navigateByUrl('/');
     } catch (err) {
       this.errorMessage.set(err instanceof Error ? err.message : 'Anmeldung fehlgeschlagen.');
     } finally {

@@ -30,6 +30,32 @@ const DISCLAIMER =
   'Rechts- oder Gesundheitsberatung. Besprich die Ergebnisse vor Antragstellung mit einer ' +
   'unabhängigen Pflegeberatungsstelle.';
 
+// Zwei statische, von Pflegegrad/Modul unabhaengige Abschnitte laut
+// Mindmap-Ast "Handout" (siehe brain.md/TODO.md) -- bewusst hart codiert
+// statt als guide_templates-Zeile, weil sie fuer alle Pflegegrade gleich
+// gelten und die Admin-Oberflaeche fuer guide_templates aktuell immer
+// einen konkreten Pflegegrad voraussetzt (kein "gilt fuer alle"-Fall).
+const MERKSAETZE_MARKDOWN = `## Merksätze für die Begutachtung
+
+- Beschreibe deinen **schlechtesten, nicht deinen besten Tag** — der Medizinische Dienst bewertet den tatsächlichen Durchschnitt, nicht den Ausnahmezustand an einem guten Tag.
+- Übertreibe nicht, aber beschönige auch nichts aus Stolz oder Scham — beides führt zu einem falschen Pflegegrad.
+- Wenn möglich sollte die Pflegeperson beim Termin dabei sein und ergänzen, was dir selbst vielleicht nicht auffällt.
+- Zeig dem MD konkret, wie eine Handlung (z. B. Anziehen, Aufstehen) tatsächlich abläuft, statt sie nur zu beschreiben.
+- Ein vorher geführtes Pflegetagebuch (auch nur ein bis zwei Wochen) hilft, nichts zu vergessen.
+- Halte alle Hilfsmittel (Rollator, Hörgerät, Brille) griffbereit, damit der MD den tatsächlichen Alltag sieht.`;
+
+const UNTERLAGEN_CHECKLISTE_MARKDOWN = `## Zusammenfassung der wichtigsten Unterlagen
+
+Diese Unterlagen solltest du zum Begutachtungstermin bereithalten:
+
+- [ ] Personalausweis
+- [ ] Aktuelle Medikamentenliste
+- [ ] Arztberichte und Diagnosen (auch von Fachärzten)
+- [ ] Vorheriger Pflegegrad-Bescheid (bei Höherstufungsantrag)
+- [ ] Pflegetagebuch, falls geführt
+- [ ] Nachweise über vorhandene Hilfsmittel
+- [ ] Kontaktdaten der Pflegeperson(en)`;
+
 Deno.serve(async (req: Request) => {
   const preflight = handlePreflight(req);
   if (preflight) return preflight;
@@ -162,6 +188,10 @@ async function handle(req: Request): Promise<Response> {
       lines.push('');
     }
   }
+  lines.push(MERKSAETZE_MARKDOWN);
+  lines.push('');
+  lines.push(UNTERLAGEN_CHECKLISTE_MARKDOWN);
+  lines.push('');
 
   const contentMarkdown = lines.join('\n');
   const pdfBytes = await renderMarkdownToPdf(contentMarkdown);

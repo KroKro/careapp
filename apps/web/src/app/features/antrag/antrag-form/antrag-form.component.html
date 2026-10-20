@@ -1,0 +1,91 @@
+<section class="mx-auto max-w-3xl">
+  @if (loading()) {
+    <p class="text-sm text-gray-500 dark:text-gray-400">Lade…</p>
+  } @else {
+    <h1 class="text-2xl font-semibold text-gray-800 dark:text-white">Antrag auf {{ label() }}</h1>
+
+    <form [formGroup]="form" class="card mt-6 space-y-6">
+      <div>
+        <h2 class="mb-3 text-sm font-semibold text-gray-800 dark:text-white">Angaben prüfen</h2>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label class="label">Vorname</label>
+            <input type="text" class="input" formControlName="vorname" />
+            @if (form.controls.vorname.invalid && form.controls.vorname.touched) {
+              <p class="mt-1.5 text-xs text-error-500">Bitte gib den Vornamen ein.</p>
+            }
+          </div>
+          <div>
+            <label class="label">Nachname</label>
+            <input type="text" class="input" formControlName="nachname" />
+            @if (form.controls.nachname.invalid && form.controls.nachname.touched) {
+              <p class="mt-1.5 text-xs text-error-500">Bitte gib den Nachnamen ein.</p>
+            }
+          </div>
+          <div>
+            <label class="label">Geburtsdatum</label>
+            <input type="date" class="input" formControlName="geburtsdatum" />
+          </div>
+          <div>
+            <label class="label">E-Mail</label>
+            <input type="email" class="input" formControlName="email" />
+            @if (form.controls.email.invalid && form.controls.email.touched) {
+              <p class="mt-1.5 text-xs text-error-500">Bitte gib eine gültige E-Mail-Adresse ein.</p>
+            }
+          </div>
+          <div class="sm:col-span-2">
+            <label class="label">Adresse</label>
+            <textarea class="input" rows="2" formControlName="adresse"></textarea>
+          </div>
+          <div class="sm:col-span-2">
+            <label class="label">Pflegekasse</label>
+            <input type="text" class="input" placeholder="Name der Pflegekasse" formControlName="pflegekasse" />
+          </div>
+          @if (isHilfsmittel()) {
+            <div class="sm:col-span-2">
+              <label class="label">Gewünschtes Hilfsmittel</label>
+              <input
+                type="text"
+                class="input"
+                placeholder="z. B. Rollator, Pflegebett, Hausnotrufsystem"
+                formControlName="hilfsmittelBezeichnung"
+              />
+              @if (form.controls.hilfsmittelBezeichnung.invalid && form.controls.hilfsmittelBezeichnung.touched) {
+                <p class="mt-1.5 text-xs text-error-500">Bitte gib an, welches Hilfsmittel beantragt werden soll.</p>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      @if (errorMessage()) {
+        <p class="alert-error">{{ errorMessage() }}</p>
+      }
+
+      <div class="border-t border-gray-200 pt-6 dark:border-gray-800">
+        <h2 class="mb-2 text-sm font-semibold text-gray-800 dark:text-white">Antrag erstellen</h2>
+        <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">
+          Es gibt noch keine direkte elektronische Übermittlung an die Pflegekasse — erstelle das PDF und sende es
+          entweder als Anhang per E-Mail, oder drucke es aus, unterschreibe es und sende es per Post/Fax.
+        </p>
+        <button type="button" class="btn-primary" [disabled]="generating()" (click)="generatePdf()">
+          @if (generating()) {
+            <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+            </svg>
+          }
+          {{ pdfStoragePath() ? 'Antrag-PDF neu erstellen' : 'Antrag-PDF erstellen' }}
+        </button>
+
+        @if (pdfStoragePath()) {
+          <button type="button" class="btn-secondary ml-3" (click)="downloadPdf()">Als PDF herunterladen</button>
+        }
+      </div>
+    </form>
+
+    <p class="mt-6">
+      <a routerLink="/antraege" class="link">Zurück zur Übersicht</a>
+    </p>
+  }
+</section>
