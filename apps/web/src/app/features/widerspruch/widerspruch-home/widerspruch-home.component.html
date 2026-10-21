@@ -47,9 +47,12 @@
         @for (l of letters(); track l.id) {
           <li class="card flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-800 dark:text-white">
-                Widerspruch {{ label(l) }}{{ l.nachname ? ' – ' + l.vorname + ' ' + l.nachname : '' }}
-              </p>
+              <div class="flex flex-wrap items-center gap-2">
+                <p class="text-sm font-medium text-gray-800 dark:text-white">
+                  Widerspruch {{ label(l) }}{{ l.nachname ? ' – ' + l.vorname + ' ' + l.nachname : '' }}
+                </p>
+                <span [class]="statusBadgeClass(l)">{{ statusLabel(l) }}</span>
+              </div>
               <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
                 angelegt am {{ formatDate(l.created_at) }}
                 @if (l.pdf_storage_path) {

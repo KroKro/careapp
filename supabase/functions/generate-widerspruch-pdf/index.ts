@@ -65,7 +65,7 @@ async function handle(req: Request): Promise<Response> {
   const { data: letter, error: letterError } = await admin
     .from('objection_letters')
     .select(
-      'id, user_id, widerspruchsart, vorname, nachname, geburtsdatum, adresse, email, pflegekasse, bescheiddatum, aktenzeichen, begruendung, created_at',
+      'id, user_id, widerspruchsart, vorname, nachname, geburtsdatum, adresse, email, pflegekasse, bescheiddatum, aktenzeichen, begruendung, protokoll_termin, assessment_id, created_at',
     )
     .eq('id', letterId)
     .single();
@@ -74,6 +74,52 @@ async function handle(req: Request): Promise<Response> {
   }
   if (letter.user_id !== callerId) {
     return new Response(JSON.stringify({ error: 'Kein Zugriff auf dieses Widerspruchsschreiben.' }), { status: 403 });
+  }
+
+  // Bei Verknuepfung mit einer eigenen Einschaetzung/Gutachten: Diagnosen
+  // (nur bei kind='gutachten', Kap. 3) und Medikamente (Modul 5, beide
+  // Arten) als Anhang in die PDF uebernehmen -- siehe Prozessbeschreibung
+  // des Auftraggebers ("Alle med. Unterlagen, Diagnosen, Medikamente" als
+  // Eingabe fuer die Begruendung). Eigentumspruefung analog zu
+  // generate-gutachten-pdf, da assessment_id vom Client kommt.
+  let diagnosenLines: string[] = [];
+  let medikamenteLines: string[] = [];
+  if (letter.assessment_id) {
+    const { data: assessment } = await admin
+      .from('assessments')
+      .select('id, user_id, kind')
+      .eq('id', letter.assessment_id)
+      .maybeSingle();
+    if (assessment && assessment.user_id === callerId) {
+      if (assessment.kind === 'gutachten') {
+        const { data: kap3 } = await admin
+          .from('assessment_chapters')
+          .select('answers')
+          .eq('assessment_id', letter.assessment_id)
+          .eq('chapter_key', 'kap3')
+          .maybeSingle();
+        const diagnosen =
+          (kap3?.answers as Record<string, unknown> | undefined)?.['diagnosen'] as
+            | Array<{ bezeichnung?: string; icdCode?: string }>
+            | undefined;
+        diagnosenLines = (diagnosen ?? [])
+          .filter((d) => d.bezeichnung)
+          .map((d) => `- ${d.bezeichnung}${d.icdCode ? ` (${d.icdCode})` : ''}`);
+      }
+      const { data: modul5 } = await admin
+        .from('assessment_modules')
+        .select('answers')
+        .eq('assessment_id', letter.assessment_id)
+        .eq('module_number', 5)
+        .maybeSingle();
+      const medikamente =
+        (modul5?.answers as Record<string, unknown> | undefined)?.['medikamente'] as
+          | Array<{ name?: string; dosierung?: string; haeufigkeit?: string }>
+          | undefined;
+      medikamenteLines = (medikamente ?? [])
+        .filter((m) => m.name)
+        .map((m) => `- ${m.name}${m.dosierung ? `, ${m.dosierung}` : ''}${m.haeufigkeit ? `, ${m.haeufigkeit}` : ''}`);
+    }
   }
 
   const lines: string[] = [];
@@ -116,6 +162,24 @@ async function handle(req: Request): Promise<Response> {
   lines.push('');
   lines.push(letter.begruendung || '_Noch keine Begründung angegeben._');
   lines.push('');
+  if (letter.protokoll_termin) {
+    lines.push('## Protokoll des Begutachtungstermins');
+    lines.push('');
+    lines.push(letter.protokoll_termin);
+    lines.push('');
+  }
+  if (diagnosenLines.length > 0) {
+    lines.push('## Diagnosen');
+    lines.push('');
+    lines.push(...diagnosenLines);
+    lines.push('');
+  }
+  if (medikamenteLines.length > 0) {
+    lines.push('## Medikamente');
+    lines.push('');
+    lines.push(...medikamenteLines);
+    lines.push('');
+  }
   lines.push('## Unterschrift');
   lines.push('');
   lines.push('Ort, Datum: ________________________    Unterschrift: ________________________');

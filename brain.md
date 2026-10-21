@@ -151,6 +151,45 @@ Barrierefrei-Audit — siehe Backlog unten.
       `generate-widerspruch-pdf`, eigener Nav-Eintrag (Waage-Icon) +
       Dashboard-Karte. Hinweis im UI auf die gesetzliche
       Widerspruchsfrist (i. d. R. 1 Monat ab Bescheidzugang).
+      **Noch offen (2026-10-21, aus `documents/attachments/2026_10_21/
+      2026_10_20_Prozessbeschreibung_Widerspruch.docx`, Visio-Flowchart
+      strukturell ausgelesen — echte Pfeile/Verbindungen, nicht geraten):**
+      der Kunde denkt den Widerspruch als **mehrstufigen, nachverfolgten
+      Vorgang**, nicht als einmaligen PDF-Generator:
+      ```
+      Start: Widerspruch führen
+        → Widerspruchsschreiben an Pflegekasse schicken
+           (Eingabe: Bescheid → Ausgabe: Widerspruchsschreiben)
+        → Widerspruch begründen
+           (Eingaben: alle med. Unterlagen/Diagnosen/Medikamente,
+            Fachinstrument Sozialgericht, Protokoll des Begutachtungstermins)
+        → Widerspruchsbegründung an Pflegekasse schicken
+        → Bescheid? Nein → Bescheid anfordern ─┐ / Ja ───────────┤
+        → Ergebnis prüfen
+        → Ergebnis ok? Ja → Ende / Nein → Klageverfahren (Folgeprozess)
+      ```
+      "Fachinstrument Sozialgericht" als Eingabe bestätigt nochmal den
+      separaten Sozialgerichtsbarkeit-Tarif aus der Mindmap (siehe
+      Backlog unten).
+
+      **Gebaut (2026-10-21):** Migration `objection_letters` um
+      `assessment_id` (optionale Verknüpfung mit eigener Einschätzung/
+      Gutachten), `protokoll_termin`, `status` (Enum: `entwurf` →
+      `versendet` → `bescheid_angefordert`/`bescheid_erhalten` →
+      `abgeschlossen_erfolgreich`/`eskaliert_klageverfahren`) +
+      Datumsfelder erweitert. Formular: Dropdown zur Verknüpfung + neues
+      Protokoll-Textfeld; "Vorgang verfolgen"-Sektion mit Buttons für
+      jeden Flowchart-Schritt. `generate-widerspruch-pdf` zieht bei
+      Verknüpfung Diagnosen (Kap. 3, nur `kind='gutachten'`) und
+      Medikamente (Modul 5, beide Arten) automatisch als PDF-Anhang,
+      inkl. serverseitiger Eigentumsprüfung der verknüpften
+      `assessment_id`. "Klageverfahren" selbst bewusst **nicht** gebaut
+      (laut Flowchart ein eigener, nicht detaillierter Folgeprozess) —
+      nur als Endzustand markierbar, mit Hinweis "wende dich an eine
+      Rechtsberatung". Deployed, End-to-End inkl. tatsächlichem
+      PDF-Textinhalt per Playwright verifiziert (PDF-Bytes dekomprimiert
+      und Hex-kodierten Text extrahiert, nicht nur auf Fehlerfreiheit
+      geprüft).
 - [x] **Leitfaden-Inhalt erweitert** (2026-10-20): `generate-guide` um
       zwei statische Abschnitte ergänzt — "Merksätze für die
       Begutachtung" (Verhaltenstipps für den MD-Termin) und

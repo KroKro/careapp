@@ -45,6 +45,20 @@
       </div>
 
       <div class="border-t border-gray-200 pt-6 dark:border-gray-800">
+        <h2 class="mb-1 text-sm font-semibold text-gray-800 dark:text-white">Verknüpfte Einschätzung/Gutachten</h2>
+        <p class="mb-3 text-sm text-gray-500 dark:text-gray-400">
+          Optional — wenn du eine Einschätzung oder ein Gutachten verknüpfst, werden die dort erfassten Diagnosen
+          und Medikamente automatisch in die Widerspruchs-PDF übernommen.
+        </p>
+        <select class="input" formControlName="assessmentId">
+          <option value="">— keine Verknüpfung —</option>
+          @for (a of linkableAssessments(); track a.id) {
+            <option [value]="a.id">{{ a.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="border-t border-gray-200 pt-6 dark:border-gray-800">
         <h2 class="mb-3 text-sm font-semibold text-gray-800 dark:text-white">Bezug zum Bescheid</h2>
         <div class="grid gap-4 sm:grid-cols-2">
           <div>
@@ -69,6 +83,16 @@
         @if (form.controls.begruendung.invalid && form.controls.begruendung.touched) {
           <p class="mt-1.5 text-xs text-error-500">Bitte gib eine Begründung für den Widerspruch ein.</p>
         }
+      </div>
+
+      <div class="border-t border-gray-200 pt-6 dark:border-gray-800">
+        <h2 class="mb-3 text-sm font-semibold text-gray-800 dark:text-white">Protokoll des Begutachtungstermins</h2>
+        <textarea
+          class="input"
+          rows="4"
+          placeholder="Was ist beim Termin mit dem Medizinischen Dienst aufgefallen oder abgewichen? (optional)"
+          formControlName="protokollTermin"
+        ></textarea>
       </div>
 
       @if (errorMessage()) {
@@ -97,6 +121,75 @@
         }
       </div>
     </form>
+
+    <div class="card mt-6">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Vorgang verfolgen</h2>
+        <span class="badge-neutral">{{ statusLabel() }}</span>
+      </div>
+
+      @if (status() === 'entwurf') {
+        <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
+          Sobald du das PDF erstellt und an die Pflegekasse geschickt hast, markiere den Widerspruch hier als
+          versendet.
+        </p>
+        <button type="button" class="btn-secondary mt-4" [disabled]="statusBusy()" (click)="markVersendet()">
+          Als versendet markieren
+        </button>
+      }
+
+      @if (status() === 'versendet') {
+        <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
+          Versendet am {{ versendetAm() ? formatDate(versendetAm()!) : '–' }}. Falls längere Zeit kein Bescheid
+          eingeht, kannst du ihn anfordern.
+        </p>
+        <div class="mt-4 flex flex-wrap gap-3">
+          <button type="button" class="btn-secondary" [disabled]="statusBusy()" (click)="markBescheidAngefordert()">
+            Bescheid anfordern
+          </button>
+          <button type="button" class="btn-primary" [disabled]="statusBusy()" (click)="markBescheidErhalten()">
+            Bescheid erhalten
+          </button>
+        </div>
+      }
+
+      @if (status() === 'bescheid_angefordert') {
+        <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
+          Bescheid angefordert am {{ bescheidAngefordertAm() ? formatDate(bescheidAngefordertAm()!) : '–' }}.
+        </p>
+        <button type="button" class="btn-primary mt-4" [disabled]="statusBusy()" (click)="markBescheidErhalten()">
+          Bescheid erhalten
+        </button>
+      }
+
+      @if (status() === 'bescheid_erhalten') {
+        <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
+          Bescheid erhalten am {{ bescheidErhaltenAm() ? formatDate(bescheidErhaltenAm()!) : '–' }}. Entspricht das
+          Ergebnis deiner Erwartung?
+        </p>
+        <div class="mt-4 flex flex-wrap gap-3">
+          <button type="button" class="btn-primary" [disabled]="statusBusy()" (click)="markAbgeschlossen()">
+            Ja, Ergebnis ok — abschließen
+          </button>
+          <button type="button" class="btn-danger" [disabled]="statusBusy()" (click)="markEskaliert()">
+            Nein — zum Klageverfahren
+          </button>
+        </div>
+      }
+
+      @if (status() === 'abgeschlossen_erfolgreich') {
+        <p class="mt-3 text-sm text-success-700 dark:text-success-500">
+          Dieser Widerspruch ist abgeschlossen.
+        </p>
+      }
+
+      @if (status() === 'eskaliert_klageverfahren') {
+        <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
+          Dieser Vorgang wurde zum Klageverfahren eskaliert. Das Klageverfahren selbst bildet dieses Tool nicht ab —
+          wende dich dafür an eine Rechtsberatung oder Anwältin/Anwalt.
+        </p>
+      }
+    </div>
 
     <p class="mt-6">
       <a routerLink="/widersprueche" class="link">Zurück zur Übersicht</a>

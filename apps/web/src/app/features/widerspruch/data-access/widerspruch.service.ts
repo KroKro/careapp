@@ -16,6 +16,20 @@ async function toFriendlyError(error: unknown): Promise<Error> {
 
 export type Widerspruchsart = 'pflegegrad' | 'hilfsmittel';
 
+// Spiegelt den Verlauf aus der Prozessbeschreibung des Auftraggebers
+// (documents/attachments/2026_10_21/2026_10_20_Prozessbeschreibung_Widerspruch.docx):
+// entwurf -> versendet -> (bescheid_angefordert ->) bescheid_erhalten ->
+// abgeschlossen_erfolgreich | eskaliert_klageverfahren. "Klageverfahren"
+// selbst ist dort ein eigener, nicht detaillierter Folgeprozess -- wird
+// hier bewusst nur als Endzustand markiert.
+export type WiderspruchStatus =
+  | 'entwurf'
+  | 'versendet'
+  | 'bescheid_angefordert'
+  | 'bescheid_erhalten'
+  | 'abgeschlossen_erfolgreich'
+  | 'eskaliert_klageverfahren';
+
 export interface ObjectionLetter {
   id: string;
   widerspruchsart: Widerspruchsart;
@@ -28,6 +42,12 @@ export interface ObjectionLetter {
   bescheiddatum: string | null;
   aktenzeichen: string;
   begruendung: string;
+  protokoll_termin: string;
+  assessment_id: string | null;
+  status: WiderspruchStatus;
+  versendet_am: string | null;
+  bescheid_angefordert_am: string | null;
+  bescheid_erhalten_am: string | null;
   pdf_storage_path: string | null;
   created_at: string;
   updated_at: string;
@@ -45,10 +65,12 @@ export type ObjectionLetterInput = Pick<
   | 'bescheiddatum'
   | 'aktenzeichen'
   | 'begruendung'
+  | 'protokoll_termin'
+  | 'assessment_id'
 >;
 
 const SELECT_FIELDS =
-  'id, widerspruchsart, vorname, nachname, geburtsdatum, adresse, email, pflegekasse, bescheiddatum, aktenzeichen, begruendung, pdf_storage_path, created_at, updated_at';
+  'id, widerspruchsart, vorname, nachname, geburtsdatum, adresse, email, pflegekasse, bescheiddatum, aktenzeichen, begruendung, protokoll_termin, assessment_id, status, versendet_am, bescheid_angefordert_am, bescheid_erhalten_am, pdf_storage_path, created_at, updated_at';
 
 @Injectable({ providedIn: 'root' })
 export class WiderspruchService {
@@ -89,6 +111,46 @@ export class WiderspruchService {
 
   async saveLetter(id: string, input: ObjectionLetterInput): Promise<void> {
     const { error } = await this.supabase.client.from('objection_letters').update(input).eq('id', id);
+    if (error) throw error;
+  }
+
+  async markVersendet(id: string): Promise<void> {
+    const { error } = await this.supabase.client
+      .from('objection_letters')
+      .update({ status: 'versendet', versendet_am: new Date().toISOString().slice(0, 10) })
+      .eq('id', id);
+    if (error) throw error;
+  }
+
+  async markBescheidAngefordert(id: string): Promise<void> {
+    const { error } = await this.supabase.client
+      .from('objection_letters')
+      .update({ status: 'bescheid_angefordert', bescheid_angefordert_am: new Date().toISOString().slice(0, 10) })
+      .eq('id', id);
+    if (error) throw error;
+  }
+
+  async markBescheidErhalten(id: string): Promise<void> {
+    const { error } = await this.supabase.client
+      .from('objection_letters')
+      .update({ status: 'bescheid_erhalten', bescheid_erhalten_am: new Date().toISOString().slice(0, 10) })
+      .eq('id', id);
+    if (error) throw error;
+  }
+
+  async markAbgeschlossen(id: string): Promise<void> {
+    const { error } = await this.supabase.client
+      .from('objection_letters')
+      .update({ status: 'abgeschlossen_erfolgreich' })
+      .eq('id', id);
+    if (error) throw error;
+  }
+
+  async markEskaliert(id: string): Promise<void> {
+    const { error } = await this.supabase.client
+      .from('objection_letters')
+      .update({ status: 'eskaliert_klageverfahren' })
+      .eq('id', id);
     if (error) throw error;
   }
 

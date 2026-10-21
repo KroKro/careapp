@@ -17,6 +17,15 @@ umsortieren. Haken setzen, sobald etwas live getestet (nicht nur
       Deployed, per Playwright verifiziert.
 - [x] **Widerspruchsschreiben bei Hilfsmitteln** — gleiches Feature wie
       oben, zweite `widerspruchsart`. Deployed, per Playwright verifiziert.
+- [x] **Widerspruch als mehrstufiger Vorgang** (2026-10-21, aus
+      `2026_10_20_Prozessbeschreibung_Widerspruch.docx`): Verknüpfung mit
+      eigener Einschätzung/Gutachten (zieht Diagnosen + Medikamente
+      automatisch in die PDF), Protokoll-des-Begutachtungstermins-Feld,
+      Status-Tracking (Entwurf → versendet → Bescheid angefordert/
+      erhalten → abgeschlossen oder Klageverfahren) mit Statusbadges in
+      der Übersicht. Deployed, End-to-End inkl. PDF-Inhalt per Playwright
+      verifiziert (Diagnosen/Medikamente/Protokoll tatsächlich im PDF-Text
+      bestätigt, nicht nur "kein Fehler"). Details in `brain.md`.
 - [x] **Leitfaden-Inhalt erweitern** — `generate-guide` um "Merksätze für
       die Begutachtung" und "Zusammenfassung der wichtigsten Unterlagen"
       (Checkliste) ergänzt, statisch (nicht pflegegradabhängig). Bewusst
@@ -62,17 +71,46 @@ umsortieren. Haken setzen, sobald etwas live getestet (nicht nur
 
 ## Tier 4 — größere, eigenständige Blöcke
 
-- [ ] **Shop/Payment** — Preismodell (€99 einmalig + Mengenrabatte +
-      Sozialgerichtsbarkeit-Sondertarif €1/Jahr), Zahlungsanbieter
-      (PayPal/Kreditkarte/Klarna), Paywall, Manipulationsschutz.
-- [ ] **Interface-Erweiterungen** — ICD-10-Schlüssel-Lookup, Rote-Liste-
-      Integration (Medikamenten-Datenbank), Sprachsteuerung.
+**Pausiert (2026-10-21):** Auftraggeber bespricht Tier 4 erst intern,
+bevor hier weitergebaut wird.
+
+- [ ] **ICD-10-Schlüssel-Lookup** — frei verfügbare Daten (DIMDI/BfArM),
+      baubar ohne externe Verträge. **Nächster sinnvoller Schritt.**
+- [ ] **Sprachsteuerung** (Formulare per Sprache ausfüllen) —
+      Web-Speech-API, baubar ohne externe Verträge.
+- [x] ~~Optionaler Passkey-Login~~ — **blockiert, nicht unser Bug**: Code
+      ist fertig (Login-Button, Konto-Verwaltung, native Supabase-API
+      `signInWithPasskey`/`registerPasskey`/`passkey.*`), aber Supabase
+      schaltet es serverseitig nicht frei (`passkeys_enabled: false`
+      trotz korrekter Config) — sieht nach Plan-/Billing-Sperre aus, muss
+      im Supabase-Dashboard geklärt werden. Code-Änderungen wurden auf
+      Wunsch des Auftraggebers wieder zurückgesetzt. Details in `brain.md`.
+- [ ] **Rote-Liste-Integration** — **nicht baubar ohne Lizenz**: die Rote
+      Liste ist eine kommerzielle, lizenzpflichtige Medikamenten-
+      Datenbank. Erst möglich, wenn eine Lizenz vorliegt.
 - [ ] **Assistent/RAG-Chat** — `pgvector`/`document_embeddings` sind
-      vorbereitet, Ingestion der BRi-PDFs + Rückfragen-Chat fehlt.
-- [ ] **Optionaler Passkey-Login** — WebAuthn als Alternative zu
-      Benutzername+Passwort (vom Kunden nur als "evtl." markiert).
+      vorbereitet. Präzisiert (2026-10-21): Embeddings/Dokumentensuche
+      laufen komplett in Supabase selbst (natives `gte-small`-Modell in
+      Edge Functions, kein Drittanbieter nötig). Nur die eigentliche
+      Chat-Antwort (LLM) braucht noch eine Entscheidung — Auftraggeber
+      tendiert zu **selbst gehostetem LLM** (Ollama/Llamafile auf eigener
+      VM, nach demselben Muster wie `infra/av-scanner`) statt externer
+      API, um den AV-Vertrag zu vermeiden. Offene Frage dabei: CPU- vs.
+      GPU-Server (Kosten-/Qualitätsabwägung, Auftraggeber entscheidet).
 - [ ] **Zusatzthemen: Vermittlungs-Marktplatz** — Anwalts-Vermittlung,
-      Hilfsmittelversorgung-Vermittlung.
+      Hilfsmittelversorgung-Vermittlung — blockiert bis echte Partner
+      feststehen, sonst nur eine leere Hülle.
+- [ ] **Shop/Payment** — bewusst zuletzt (Wunsch des Auftraggebers).
+      Preismodell (€99 einmalig + Mengenrabatte + Sozialgerichtsbarkeit-
+      Sondertarif €1/Jahr), Zahlungsanbieter (PayPal/Kreditkarte/Klarna),
+      Paywall, Manipulationsschutz — braucht echte Zahlungsanbieter-
+      Zugangsdaten.
+
+**Außerhalb dieser Liste, aber offen:** ein unkommitteter Fix in
+`supabase/config.toml` (MFA-TOTP + E-Mail-OTP-Werte wiederhergestellt,
+nachdem ein `config push` sie versehentlich überschrieben hatte) — beim
+nächsten Git-Commit mitnehmen, sonst überschreibt der nächste
+`config push` sie wieder.
 
 ## Nicht auf dieser Liste (kein Bau-Thema)
 

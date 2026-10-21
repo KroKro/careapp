@@ -1,10 +1,28 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { ObjectionLetter, Widerspruchsart, WiderspruchService } from '../data-access/widerspruch.service';
+import { ObjectionLetter, WiderspruchStatus, Widerspruchsart, WiderspruchService } from '../data-access/widerspruch.service';
 
 const WIDERSPRUCHSART_LABELS: Record<Widerspruchsart, string> = {
   pflegegrad: 'Pflegegrad',
   hilfsmittel: 'Hilfsmittel',
+};
+
+const STATUS_LABELS: Record<WiderspruchStatus, string> = {
+  entwurf: 'Entwurf',
+  versendet: 'Versendet',
+  bescheid_angefordert: 'Bescheid angefordert',
+  bescheid_erhalten: 'Bescheid erhalten',
+  abgeschlossen_erfolgreich: 'Abgeschlossen',
+  eskaliert_klageverfahren: 'Klageverfahren',
+};
+
+const STATUS_BADGE_CLASS: Record<WiderspruchStatus, string> = {
+  entwurf: 'badge-neutral',
+  versendet: 'badge-warning',
+  bescheid_angefordert: 'badge-warning',
+  bescheid_erhalten: 'badge-warning',
+  abgeschlossen_erfolgreich: 'badge-success',
+  eskaliert_klageverfahren: 'badge-error',
 };
 
 @Component({
@@ -53,6 +71,14 @@ export class WiderspruchHomeComponent implements OnInit {
 
   label(l: ObjectionLetter): string {
     return WIDERSPRUCHSART_LABELS[l.widerspruchsart];
+  }
+
+  statusLabel(l: ObjectionLetter): string {
+    return STATUS_LABELS[l.status];
+  }
+
+  statusBadgeClass(l: ObjectionLetter): string {
+    return STATUS_BADGE_CLASS[l.status];
   }
 
   formatDate(value: string): string {
